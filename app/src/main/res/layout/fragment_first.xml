@@ -10,33 +10,50 @@
         android:id="@+id/button_first"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="68dp"
+        android:layout_marginBottom="548dp"
         android:text="@string/next"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.089"
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageButton
-        android:id="@+id/imageButton"
-        android:layout_width="103dp"
-        android:layout_height="59dp"
-        android:layout_marginStart="154dp"
-        android:layout_marginEnd="154dp"
-        android:layout_marginBottom="37dp"
+        android:id="@+id/cameraButton"
+        android:layout_width="150dp"
+        android:layout_height="0dp"
+        android:contentDescription="@string/activate_camera"
         android:src="@android:drawable/ic_menu_camera"
-        app:layout_constraintBottom_toTopOf="@+id/button_first"
+        app:layout_constraintBottom_toBottomOf="@+id/galleryButton"
+        app:layout_constraintEnd_toStartOf="@+id/galleryButton"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/galleryButton" />
+
+    <ImageButton
+        android:id="@+id/galleryButton"
+        android:layout_width="150dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="32dp"
+        android:contentDescription="@string/activate_gallery"
+        android:scaleType="fitCenter"
+        android:src="?android:attr/galleryItemBackground"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/cameraButton" />
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="162dp"
-        android:layout_marginTop="196dp"
-        android:layout_marginEnd="163dp"
-        android:src="?android:attr/galleryItemBackground"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="10dp"
+        android:src="@android:drawable/screen_background_dark"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/cameraButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.31" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

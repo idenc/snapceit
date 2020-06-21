@@ -1,12 +1,12 @@
 package com.idenc.snapceit
 
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
-
+import androidx.test.platform.app.InstrumentationRegistry
+import com.google.mlkit.vision.text.TextRecognition
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 
-import org.junit.Assert.*
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -19,6 +19,10 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.example.snapceit", appContext.packageName)
+        assertEquals("com.idenc.snapceit", appContext.packageName)
+    }
+
+    fun testRecognition() {
+        val recognizer = TextRecognition.getClient()
     }
 }
