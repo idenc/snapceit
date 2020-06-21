@@ -3,7 +3,6 @@ package com.idenc.snapceit
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.graphics.*
-import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -16,6 +15,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
@@ -25,6 +25,7 @@ import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
 import java.io.File
 import java.io.IOException
+import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -70,8 +71,8 @@ class FirstFragment : Fragment() {
         )
     }
 
-    private fun fixRotation(source: Bitmap, photoPath: Uri): Bitmap {
-        val ei = ExifInterface(photoPath.path!!)
+    private fun fixRotation(source: Bitmap, stream: InputStream): Bitmap {
+        val ei = ExifInterface(stream)
         val orientation: Int = ei.getAttributeInt(
             ExifInterface.TAG_ORIENTATION,
             ExifInterface.ORIENTATION_UNDEFINED
@@ -100,7 +101,9 @@ class FirstFragment : Fragment() {
                     val source = ImageDecoder.createSource(it.contentResolver, photoPath)
                     ImageDecoder.decodeBitmap(source)
                 }
-                bitmap = fixRotation(bitmap, photoPath)
+                it.contentResolver.openInputStream(photoPath)?.let { stream ->
+                    bitmap = fixRotation(bitmap, stream)
+                }
                 println(bitmap.height)
                 println(bitmap.width)
                 val image: InputImage = InputImage.fromBitmap(bitmap, 0)
