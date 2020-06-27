@@ -14,6 +14,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
@@ -104,6 +106,10 @@ class FirstFragment : Fragment() {
     private fun runTextRecognition(photoPath: Uri) {
         context?.let { ctx ->
             activity?.let {
+                val progressSpinner = it.findViewById<ProgressBar>(R.id.spin_kit)
+                val progressText = it.findViewById<TextView>(R.id.loadingText)
+                progressText.visibility = View.VISIBLE
+                progressSpinner.visibility = View.VISIBLE
                 var bitmap: Bitmap
                 val recyclerView = it.findViewById<RecyclerView>(R.id.recycler)
                 recyclerView.visibility = View.VISIBLE
@@ -125,9 +131,12 @@ class FirstFragment : Fragment() {
                 recognizer.process(image)
                     .addOnSuccessListener { texts ->
                         processTextRecognitionResult(texts, bitmap.height)
+                        progressSpinner.visibility = View.INVISIBLE
+                        progressText.visibility = View.INVISIBLE
                     }
                     .addOnFailureListener { e -> // Task failed with an exception
                         e.printStackTrace()
+                        showToast("Failed to analyze receipt")
                     }
             }
         }

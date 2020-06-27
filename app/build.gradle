@@ -50,4 +50,6 @@ dependencies {
 
     // Text features
     implementation 'com.google.android.gms:play-services-mlkit-text-recognition:16.0.0'
+    // Fancy loading spinner
+    implementation 'com.github.ybq:Android-SpinKit:1.4.0'
 }

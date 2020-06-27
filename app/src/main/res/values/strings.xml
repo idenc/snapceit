@@ -11,4 +11,5 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="activate_camera">Activate camera</string>
     <string name="activate_gallery">Activate gallery</string>
+    <string name="processing_receipt">Processing Receipt...</string>
 </resources>
