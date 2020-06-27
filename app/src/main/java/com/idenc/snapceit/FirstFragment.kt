@@ -104,16 +104,19 @@ class FirstFragment : Fragment() {
     }
 
     private fun runTextRecognition(photoPath: Uri) {
-        context?.let { ctx ->
+        context?.let {
             activity?.let {
+                // Set progress spinner to visible
                 val progressSpinner = it.findViewById<ProgressBar>(R.id.spin_kit)
                 val progressText = it.findViewById<TextView>(R.id.loadingText)
                 progressText.visibility = View.VISIBLE
                 progressSpinner.visibility = View.VISIBLE
+
                 var bitmap: Bitmap
                 val recyclerView = it.findViewById<RecyclerView>(R.id.recycler)
                 recyclerView.visibility = View.VISIBLE
-                bitmap = if (Build.VERSION.SDK_INT < 28) {
+                // Get our full size image
+                bitmap = if (Build.VERSION.SDK_INT < 28) { // For compatibility
                     MediaStore.Images.Media.getBitmap(
                         it.contentResolver,
                         photoPath
@@ -122,14 +125,17 @@ class FirstFragment : Fragment() {
                     val source = ImageDecoder.createSource(it.contentResolver, photoPath)
                     ImageDecoder.decodeBitmap(source)
                 }
+                // Ensure photo rotation is correct
                 it.contentResolver.openInputStream(photoPath)?.let { stream ->
                     bitmap = fixRotation(bitmap, stream)
                 }
 
+                // Use MLKit to perform text recognition
                 val image: InputImage = InputImage.fromBitmap(bitmap, 0)
                 val recognizer: TextRecognizer = TextRecognition.getClient()
                 recognizer.process(image)
                     .addOnSuccessListener { texts ->
+                        // On text recognition parse prices out and then hide loading spinner
                         processTextRecognitionResult(texts, bitmap.height)
                         progressSpinner.visibility = View.INVISIBLE
                         progressText.visibility = View.INVISIBLE
