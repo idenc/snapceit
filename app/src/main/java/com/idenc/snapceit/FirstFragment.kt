@@ -155,7 +155,7 @@ class FirstFragment : Fragment() {
                 }
             }
         }
-        return Pair(closest, diff)
+        return Pair(closest, min)
     }
 
     private fun processTextRecognitionResult(result: Text, height: Int) {
@@ -175,7 +175,7 @@ class FirstFragment : Fragment() {
                 if (!line.text.contains("$")) {
                     val (closestPrice, diff) = closest(line, blocks)
 
-                    if (((diff.toDouble() / height) * 100) < 50) {
+                    if (((diff.toDouble() / height) * 100) < 1) {
                         itemsList.add(Pair(line.text, closestPrice.text))
                     }
                     println("${line.text} \t ${closestPrice.text}")
