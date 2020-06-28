@@ -3,6 +3,7 @@ package com.idenc.snapceit
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
@@ -19,11 +20,11 @@ class RecyclerAdapter(private val items: ArrayList<Pair<String, String>>) :
         // for any view that will be set as you render a row
         val itemName: TextView = itemView.findViewById(R.id.item_name)
         val itemPrice: TextView = itemView.findViewById(R.id.item_price)
+        val deleteButton: ImageButton = itemView.findViewById(R.id.deleteButton)
     }
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-        val context = parent.context;
         // create a new view
         val textView = LayoutInflater.from(parent.context)
             .inflate(R.layout.recyclerview_item_row, parent, false)
@@ -41,5 +42,14 @@ class RecyclerAdapter(private val items: ArrayList<Pair<String, String>>) :
         val priceTextView = holder.itemPrice
         nameTextView.text = item.first
         priceTextView.text = item.second
+
+        holder.deleteButton.setOnClickListener {
+            removeItem(position)
+        }
+    }
+
+    fun removeItem(position: Int) {
+        items.removeAt(position)
+        notifyItemRemoved(position)
     }
 }

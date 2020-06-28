@@ -43,6 +43,8 @@ import kotlin.math.abs
 class FirstFragment : Fragment() {
     private val REQUEST_IMAGE_CAPTURE = 1
     private val REQUEST_GALLERY_IMAGE = 2
+    private val PRICE_REGEX = Regex("([\\dO]+\\.\\d{1,2})")
+
     private lateinit var currentPhotoPath: Uri
     private lateinit var fragmentAdapter: RecyclerAdapter
     private var itemsList = ArrayList<Pair<String, String>>()
@@ -154,14 +156,15 @@ class FirstFragment : Fragment() {
         }
     }
 
-    fun closest(of: Text.Line, blocks: List<Text.TextBlock>): Pair<Text.Line, Int> {
+    private fun closest(of: Text.Line, blocks: List<Text.TextBlock>): Pair<Text.Line, Int> {
         var min = Int.MAX_VALUE
         var closest = of
-        var diff = -1
+        var diff: Int
         for (block in blocks) {
             val lines = block.lines
             for (line in lines) {
-                if (line.text.contains("$") && line.text != of.text) {
+                if ((line.text.contains("$") || PRICE_REGEX.containsMatchIn(line.text))
+                    && line.text != of.text) {
                     diff = abs(line.boundingBox!!.bottom - of.boundingBox!!.bottom)
                     if (diff < min) {
                         min = diff
@@ -191,7 +194,11 @@ class FirstFragment : Fragment() {
                     val (closestPrice, diff) = closest(line, blocks)
 
                     if (((diff.toDouble() / height) * 100) < 1) {
-                        itemsList.add(Pair(line.text, closestPrice.text))
+                        var price = closestPrice.text.replace('O', '0')
+                        PRICE_REGEX.find(price)?.let {
+                            price = '$' + it.value
+                        }
+                        itemsList.add(Pair(line.text, price))
                     }
                     println("${line.text} \t ${closestPrice.text}")
                     println((diff.toDouble() / height) * 100)
