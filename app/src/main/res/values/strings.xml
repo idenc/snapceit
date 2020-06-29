@@ -12,4 +12,5 @@
     <string name="activate_camera">Activate camera</string>
     <string name="activate_gallery">Activate gallery</string>
     <string name="processing_receipt">Processing Receipt...</string>
+    <string name="settings">Settings</string>
 </resources>

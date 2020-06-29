@@ -164,7 +164,8 @@ class FirstFragment : Fragment() {
             val lines = block.lines
             for (line in lines) {
                 if ((line.text.contains("$") || PRICE_REGEX.containsMatchIn(line.text))
-                    && line.text != of.text) {
+                    && line.text != of.text
+                ) {
                     diff = abs(line.boundingBox!!.bottom - of.boundingBox!!.bottom)
                     if (diff < min) {
                         min = diff

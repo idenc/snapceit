@@ -4,7 +4,8 @@
     tools:context="com.idenc.snapceit.MainActivity">
     <item
         android:id="@+id/action_settings"
+        android:icon="@drawable/ic_action_name"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
+        android:title="@string/settings"
+        app:showAsAction="always" />
 </menu>
