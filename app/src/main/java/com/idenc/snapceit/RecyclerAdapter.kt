@@ -3,12 +3,14 @@ package com.idenc.snapceit
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 class RecyclerAdapter(private val items: ArrayList<Pair<String, String>>) :
     RecyclerView.Adapter<RecyclerAdapter.MyViewHolder>() {
+    var onAssignClick: (() -> Unit)? = null
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -21,15 +23,22 @@ class RecyclerAdapter(private val items: ArrayList<Pair<String, String>>) :
         val itemName: TextView = itemView.findViewById(R.id.item_name)
         val itemPrice: TextView = itemView.findViewById(R.id.item_price)
         val deleteButton: ImageButton = itemView.findViewById(R.id.deleteButton)
+        private val assignButton: Button = itemView.findViewById(R.id.assign_button)
+
+        init {
+            assignButton.setOnClickListener {
+                onAssignClick?.invoke()
+            }
+        }
     }
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         // create a new view
-        val textView = LayoutInflater.from(parent.context)
+        val rowView = LayoutInflater.from(parent.context)
             .inflate(R.layout.recyclerview_item_row, parent, false)
 
-        return MyViewHolder(textView)
+        return MyViewHolder(rowView)
     }
 
     override fun getItemCount(): Int {

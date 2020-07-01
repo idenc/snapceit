@@ -75,8 +75,16 @@ class FirstFragment : Fragment() {
 
         view.findViewById<RecyclerView>(R.id.recycler).apply {
             setHasFixedSize(false)
-            layoutManager = LinearLayoutManager(context!!)
+            layoutManager = LinearLayoutManager(requireContext())
             this.adapter = fragmentAdapter
+        }
+        val personSelector = PersonSelectorDialogFragment()
+
+        fragmentAdapter.onAssignClick = {
+            personSelector.show(
+                requireActivity().supportFragmentManager,
+                "people_selector"
+            )
         }
 
     }
@@ -215,7 +223,7 @@ class FirstFragment : Fragment() {
             Intent.ACTION_PICK,
             MediaStore.Images.Media.INTERNAL_CONTENT_URI
         ).also { galleryIntent ->
-            galleryIntent.resolveActivity(activity!!.packageManager)?.also {
+            galleryIntent.resolveActivity(requireActivity().packageManager)?.also {
                 startActivityForResult(galleryIntent, REQUEST_GALLERY_IMAGE)
             }
         }
@@ -223,7 +231,7 @@ class FirstFragment : Fragment() {
 
     private fun dispatchTakePictureIntent() {
         Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
-            takePictureIntent.resolveActivity(activity!!.packageManager)?.also {
+            takePictureIntent.resolveActivity(requireActivity().packageManager)?.also {
                 // Create the File where the photo should go
                 val photoFile: File? = try {
                     createImageFile()

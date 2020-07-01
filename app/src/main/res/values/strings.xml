@@ -11,6 +11,10 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="activate_camera">Activate camera</string>
     <string name="activate_gallery">Activate gallery</string>
-    <string name="processing_receipt">Processing Receipt...</string>
+    <string name="processing_receipt">Processing Receipt…</string>
     <string name="settings">Settings</string>
+    <string name="assign">Assign</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="select_users">Select users to split item</string>
 </resources>
