@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 class RecyclerAdapter(private val items: ArrayList<Pair<String, String>>) :
     RecyclerView.Adapter<RecyclerAdapter.MyViewHolder>() {
-    var onAssignClick: (() -> Unit)? = null
+    var onAssignClick: ((Int) -> Unit)? = null
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -27,7 +27,7 @@ class RecyclerAdapter(private val items: ArrayList<Pair<String, String>>) :
 
         init {
             assignButton.setOnClickListener {
-                onAssignClick?.invoke()
+                onAssignClick?.invoke(this.layoutPosition)
             }
         }
     }

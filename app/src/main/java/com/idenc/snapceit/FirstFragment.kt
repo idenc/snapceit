@@ -40,7 +40,7 @@ import kotlin.math.abs
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
  */
-class FirstFragment : Fragment() {
+class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener {
     private val REQUEST_IMAGE_CAPTURE = 1
     private val REQUEST_GALLERY_IMAGE = 2
     private val PRICE_REGEX = Regex("([\\dO]+\\.\\d{1,2})")
@@ -48,6 +48,8 @@ class FirstFragment : Fragment() {
     private lateinit var currentPhotoPath: Uri
     private lateinit var fragmentAdapter: RecyclerAdapter
     private var itemsList = ArrayList<Pair<String, String>>()
+    private var people = ArrayList<Person>()
+    private var currentAssignPosition: Int = -1
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -64,25 +66,37 @@ class FirstFragment : Fragment() {
             findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
         }
 
+        // Add receipt through picture
         view.findViewById<ImageButton>(R.id.cameraButton).setOnClickListener {
             dispatchTakePictureIntent()
         }
 
+        // Add receipt through gallery
         view.findViewById<ImageButton>(R.id.galleryButton).setOnClickListener {
             dispatchGalleryIntent()
         }
+        // Make recycler view to hold parsed items
         fragmentAdapter = RecyclerAdapter(itemsList)
-
         view.findViewById<RecyclerView>(R.id.recycler).apply {
             setHasFixedSize(false)
             layoutManager = LinearLayoutManager(requireContext())
             this.adapter = fragmentAdapter
         }
-        val personSelector = PersonSelectorDialogFragment()
 
-        fragmentAdapter.onAssignClick = {
+        // Instantiate our current people
+        val peopleStrings = resources.getStringArray(R.array.userNames)
+        for (name in peopleStrings) {
+            people.add(Person(name))
+        }
+
+        // Create dialog to assign items to people
+        val personSelector = PersonSelectorDialogFragment()
+        personSelector.setTargetFragment(this, 0)
+        // Add listener to assign button
+        fragmentAdapter.onAssignClick = { position ->
+            currentAssignPosition = position
             personSelector.show(
-                requireActivity().supportFragmentManager,
+                parentFragmentManager,
                 "people_selector"
             )
         }
@@ -293,5 +307,16 @@ class FirstFragment : Fragment() {
         }
     }
 
-
+    override fun onDialogPositiveClick(selectedPeople: ArrayList<Int>) {
+        for (i in 0 until people.size) {
+            if (selectedPeople.contains(i)) {
+                people[i].itemPrices[i] = itemsList[i].second
+            } else if (people[i].itemPrices.containsKey(i)) {
+                people[i].itemPrices.remove(i)
+            }
+        }
+        for (p in people) {
+            println(p)
+        }
+    }
 }

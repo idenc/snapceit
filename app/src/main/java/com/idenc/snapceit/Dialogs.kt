@@ -1,13 +1,19 @@
 package com.idenc.snapceit
 
 import android.app.Dialog
-import android.content.DialogInterface
+import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 
 class PersonSelectorDialogFragment : DialogFragment() {
     private val selectedItems = ArrayList<Int>() // Where we track the selected items
+    private lateinit var listener: MyDialogListener
+
+    interface MyDialogListener {
+        fun onDialogPositiveClick(selectedPeople: ArrayList<Int>)
+    }
+
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
@@ -32,19 +38,30 @@ class PersonSelectorDialogFragment : DialogFragment() {
                         selectedItems.remove(Integer.valueOf(which))
                     }
                 }
-                // Set the action buttons
-                .setPositiveButton(R.string.ok,
-                    DialogInterface.OnClickListener { dialog, id ->
-                        // User clicked OK, so save the selectedItems results somewhere
-                        // or return them to the component that opened the dialog
-                        println(selectedItems)
-                    })
-                .setNegativeButton(R.string.cancel,
-                    DialogInterface.OnClickListener { dialog, id ->
-                        dialog.cancel()
-                    })
+                .setPositiveButton(R.string.ok) { dialog, id ->
+                    listener.onDialogPositiveClick(selectedItems)
+                }
+                .setNegativeButton(R.string.cancel) { dialog, _ ->
+                    dialog.cancel()
+                }
 
             builder.create()
         } ?: throw IllegalStateException("Activity cannot be null")
+    }
+
+    // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        // Verify that the host activity implements the callback interface
+        try {
+            // Instantiate the NoticeDialogListener so we can send events to the host
+            listener = targetFragment as MyDialogListener
+        } catch (e: ClassCastException) {
+            // The activity doesn't implement the interface, throw exception
+            throw ClassCastException(
+                (targetFragment.toString() +
+                        " must implement NoticeDialogListener")
+            )
+        }
     }
 }
