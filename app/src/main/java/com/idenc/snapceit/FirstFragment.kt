@@ -372,7 +372,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
     override fun onDialogPositiveClick(selectedPeople: ArrayList<Int>) {
         for (i in 0 until people.size) {
             if (selectedPeople.contains(i)) {
-                people[i].itemPrices[i] = itemsList[i].second
+                people[i].itemPrices[i] = Pair(itemsList[i].second, selectedPeople.size)
             } else if (people[i].itemPrices.containsKey(i)) {
                 people[i].itemPrices.remove(i)
             }
@@ -381,7 +381,6 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
             println(p)
         }
     }
-
 
     //closes FAB submenus
     private fun closeSubMenusFab() {
