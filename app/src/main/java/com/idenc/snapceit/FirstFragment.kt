@@ -107,6 +107,8 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
             people.add(Person(name))
         }
 
+        val finalSplitDialog = FinalSplitDialogFragment(people)
+
         // Create dialog to assign items to people
         val personSelector = PersonSelectorDialogFragment()
         personSelector.setTargetFragment(this, 0)
@@ -125,6 +127,11 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
         layoutFabAddItem = view.findViewById(R.id.layoutFabAddItem)
         layoutFabConfirmItem = view.findViewById(R.id.layoutFabConfirm)
         layoutFabTax = view.findViewById(R.id.layoutFabTax)
+
+        layoutFabConfirmItem.setOnClickListener {
+            people.forEach { person -> person.accumulatePrice() }
+            finalSplitDialog.show(parentFragmentManager, "person_split")
+        }
 
         //When main Fab (Settings) is clicked, it expands if not expanded already.
         //Collapses if main FAB was open already.
@@ -375,9 +382,12 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
     override fun onDialogPositiveClick(selectedPeople: ArrayList<Int>) {
         for (i in 0 until people.size) {
             if (selectedPeople.contains(i)) {
-                people[i].itemPrices[i] = Pair(itemsList[i].second, selectedPeople.size)
-            } else if (people[i].itemPrices.containsKey(i)) {
-                people[i].itemPrices.remove(i)
+                people[i].itemPrices[currentAssignPosition] = Pair(
+                    itemsList[currentAssignPosition].second,
+                    selectedPeople.size
+                )
+            } else if (people[i].itemPrices.containsKey(currentAssignPosition)) {
+                people[i].itemPrices.remove(currentAssignPosition)
             }
         }
         for (p in people) {

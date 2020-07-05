@@ -5,6 +5,8 @@ import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 class PersonSelectorDialogFragment : DialogFragment() {
     private val selectedItems = HashMap<Int, ArrayList<Int>>() // Where we track the selected items
@@ -79,6 +81,27 @@ class PersonSelectorDialogFragment : DialogFragment() {
     }
 }
 
-class FinalSplitDialogFragment : DialogFragment() {
+class FinalSplitDialogFragment(private val people: ArrayList<Person>) : DialogFragment() {
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return activity?.let {
+            val builder = AlertDialog.Builder(it)
+            // Get the layout inflater
+            val inflater = requireActivity().layoutInflater;
+            val view = inflater.inflate(R.layout.person_split_recyclerview, null, false)
+            val recyclerView = view.findViewById<RecyclerView>(R.id.personRecycler)
+            val adapter = FinalSplitRecyclerAdapter(people)
+            recyclerView.setHasFixedSize(false)
+            recyclerView.layoutManager = LinearLayoutManager(requireContext())
+            recyclerView.adapter = adapter
+            adapter.notifyDataSetChanged()
 
+            // Inflate and set the layout for the dialog
+            // Pass null as the parent view because its going in the dialog layout
+            builder.setView(view)
+                // Add action buttons
+                .setPositiveButton(R.string.ok) { _, _ ->
+                }
+            builder.create()
+        } ?: throw IllegalStateException("Activity cannot be null")
+    }
 }
