@@ -8,8 +8,8 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class RecyclerAdapter(private val items: ArrayList<Pair<String, String>>) :
-    RecyclerView.Adapter<RecyclerAdapter.MyViewHolder>() {
+class ItemRecyclerAdapter(private val items: ArrayList<Pair<String, String>>) :
+    RecyclerView.Adapter<ItemRecyclerAdapter.MyViewHolder>() {
     var onAssignClick: ((Int) -> Unit)? = null
 
     // Provide a reference to the views for each data item
@@ -57,7 +57,7 @@ class RecyclerAdapter(private val items: ArrayList<Pair<String, String>>) :
         }
     }
 
-    fun removeItem(position: Int) {
+    private fun removeItem(position: Int) {
         items.removeAt(position)
         notifyItemRemoved(position)
     }

@@ -7,39 +7,52 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 
 class PersonSelectorDialogFragment : DialogFragment() {
-    private val selectedItems = ArrayList<Int>() // Where we track the selected items
+    private val selectedItems = HashMap<Int, ArrayList<Int>>() // Where we track the selected items
     private lateinit var listener: MyDialogListener
+    var position = 0
+    private val numPeople = 2
+    private var lastSelection = BooleanArray(numPeople)
 
     interface MyDialogListener {
         fun onDialogPositiveClick(selectedPeople: ArrayList<Int>)
     }
 
-
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             val builder = AlertDialog.Builder(it)
-            val numPeople = 2
-            val checkItems = BooleanArray(numPeople)
-            println(selectedItems)
-            for (i in 0 until numPeople) {
-                checkItems[i] = selectedItems.contains(i)
+            var checkedItems = BooleanArray(numPeople)
+            if (selectedItems.containsKey(position)) {
+                for (i in 0 until numPeople) {
+                    checkedItems[i] = selectedItems[position]!!.contains(i)
+                }
+            } else {
+                checkedItems = lastSelection
             }
+
             // Set the dialog title
             builder.setTitle(R.string.select_users)
                 // Specify the list array, the items to be selected by default (null for none),
                 // and the listener through which to receive callbacks when items are selected
-                .setMultiChoiceItems(R.array.userNames, checkItems)
+                .setMultiChoiceItems(R.array.userNames, checkedItems)
                 { _, which, isChecked ->
+                    if (!selectedItems.containsKey(position)) {
+                        selectedItems[position] = ArrayList()
+                    }
                     if (isChecked) {
                         // If the user checked the item, add it to the selected items
-                        selectedItems.add(which)
+                        selectedItems[position]?.add(which)
                     } else if (selectedItems.contains(which)) {
                         // Else, if the item is already in the array, remove it
-                        selectedItems.remove(Integer.valueOf(which))
+                        selectedItems[position]?.remove(Integer.valueOf(which))
                     }
                 }
                 .setPositiveButton(R.string.ok) { _, _ ->
-                    listener.onDialogPositiveClick(selectedItems)
+                    selectedItems[position]?.let { items ->
+                        for (i in 0 until numPeople) {
+                            lastSelection[i] = items.contains(i)
+                        }
+                        listener.onDialogPositiveClick(items)
+                    }
                 }
                 .setNegativeButton(R.string.cancel) { dialog, _ ->
                     dialog.cancel()
@@ -64,4 +77,8 @@ class PersonSelectorDialogFragment : DialogFragment() {
             )
         }
     }
+}
+
+class FinalSplitDialogFragment : DialogFragment() {
+
 }

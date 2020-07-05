@@ -49,7 +49,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
     private val PRICE_REGEX = Regex("([\\dO]+\\.\\d{1,2})")
 
     private lateinit var currentPhotoPath: Uri
-    private lateinit var fragmentAdapter: RecyclerAdapter
+    private lateinit var fragmentAdapter: ItemRecyclerAdapter
     private var itemsList = ArrayList<Pair<String, String>>()
     private var people = ArrayList<Person>()
     private var currentAssignPosition: Int = -1
@@ -61,6 +61,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
     //Linear layout holding the Save submenu
     private lateinit var layoutFabAddItem: LinearLayout
     private lateinit var layoutFabConfirmItem: LinearLayout
+    private lateinit var layoutFabTax: LinearLayout
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -93,7 +94,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
 
         initNavigation(navigation)
         // Make recycler view to hold parsed items
-        fragmentAdapter = RecyclerAdapter(itemsList)
+        fragmentAdapter = ItemRecyclerAdapter(itemsList)
         view.findViewById<RecyclerView>(R.id.recycler).apply {
             setHasFixedSize(false)
             layoutManager = LinearLayoutManager(requireContext())
@@ -112,6 +113,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
         // Add listener to assign button
         fragmentAdapter.onAssignClick = { position ->
             currentAssignPosition = position
+            personSelector.position = position
             personSelector.show(
                 parentFragmentManager,
                 "people_selector"
@@ -122,6 +124,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
         fabSettings = view.findViewById(R.id.fab)
         layoutFabAddItem = view.findViewById(R.id.layoutFabAddItem)
         layoutFabConfirmItem = view.findViewById(R.id.layoutFabConfirm)
+        layoutFabTax = view.findViewById(R.id.layoutFabTax)
 
         //When main Fab (Settings) is clicked, it expands if not expanded already.
         //Collapses if main FAB was open already.
@@ -386,6 +389,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
     private fun closeSubMenusFab() {
         layoutFabAddItem.visibility = View.INVISIBLE
         layoutFabConfirmItem.visibility = View.INVISIBLE
+        layoutFabTax.visibility = View.INVISIBLE
         fabSettings.setImageResource(android.R.drawable.ic_input_add)
         fabExpanded = false
     }
@@ -394,6 +398,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
     private fun openSubMenusFab() {
         layoutFabAddItem.visibility = View.VISIBLE
         layoutFabConfirmItem.visibility = View.VISIBLE
+        layoutFabTax.visibility = View.VISIBLE
         //Change settings icon to 'X' icon
         fabSettings.setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
         fabExpanded = true
