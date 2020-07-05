@@ -13,7 +13,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.FileProvider
@@ -23,6 +22,8 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomnavigation.BottomNavigationItemView
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
@@ -66,15 +67,21 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
             findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
         }
 
+        val navigation = view.findViewById<BottomNavigationView>(R.id.nav_view)
+
         // Add receipt through picture
-        view.findViewById<ImageButton>(R.id.cameraButton).setOnClickListener {
+        view.findViewById<BottomNavigationItemView>(R.id.cameraButton).setOnClickListener {
+            navigation.selectedItemId = R.id.cameraButton
             dispatchTakePictureIntent()
         }
 
         // Add receipt through gallery
-        view.findViewById<ImageButton>(R.id.galleryButton).setOnClickListener {
+        view.findViewById<BottomNavigationItemView>(R.id.galleryButton).setOnClickListener {
+            navigation.selectedItemId = R.id.galleryButton
             dispatchGalleryIntent()
         }
+
+        initNavigation(navigation)
         // Make recycler view to hold parsed items
         fragmentAdapter = RecyclerAdapter(itemsList)
         view.findViewById<RecyclerView>(R.id.recycler).apply {
@@ -101,6 +108,29 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
             )
         }
 
+    }
+
+    private fun initNavigation(navigation: BottomNavigationView) {
+        navigation.menu.getItem(0).isCheckable = false
+        navigation.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+
+                R.id.cameraButton -> {
+                    item.isCheckable = true //here is the magic
+
+                    //notify the listener
+                    true
+                }
+                R.id.galleryButton -> {
+                    item.isCheckable = true
+
+                    //notify the listener
+                    true
+                }
+
+                else -> false
+            }
+        }
     }
 
     private fun rotateImage(source: Bitmap, angle: Float): Bitmap? {

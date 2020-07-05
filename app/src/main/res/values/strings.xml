@@ -17,4 +17,6 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="select_users">Select users to split item</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
 </resources>

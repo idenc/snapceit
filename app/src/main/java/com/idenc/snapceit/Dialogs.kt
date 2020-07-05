@@ -38,7 +38,7 @@ class PersonSelectorDialogFragment : DialogFragment() {
                         selectedItems.remove(Integer.valueOf(which))
                     }
                 }
-                .setPositiveButton(R.string.ok) { dialog, id ->
+                .setPositiveButton(R.string.ok) { _, _ ->
                     listener.onDialogPositiveClick(selectedItems)
                 }
                 .setNegativeButton(R.string.cancel) { dialog, _ ->
