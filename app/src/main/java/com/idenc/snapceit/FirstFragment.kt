@@ -13,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.FileProvider
@@ -24,6 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
@@ -51,6 +53,14 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
     private var itemsList = ArrayList<Pair<String, String>>()
     private var people = ArrayList<Person>()
     private var currentAssignPosition: Int = -1
+
+    //boolean flag to know if main FAB is in open or closed state.
+    private var fabExpanded = false
+    private lateinit var fabSettings: FloatingActionButton
+
+    //Linear layout holding the Save submenu
+    private lateinit var layoutFabAddItem: LinearLayout
+    private lateinit var layoutFabConfirmItem: LinearLayout
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -107,6 +117,28 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
                 "people_selector"
             )
         }
+
+
+        fabSettings = view.findViewById(R.id.fab)
+        layoutFabAddItem = view.findViewById(R.id.layoutFabAddItem)
+        layoutFabConfirmItem = view.findViewById(R.id.layoutFabConfirm)
+
+        //When main Fab (Settings) is clicked, it expands if not expanded already.
+        //Collapses if main FAB was open already.
+        //This gives FAB (Settings) open/close behavior
+
+        //When main Fab (Settings) is clicked, it expands if not expanded already.
+        //Collapses if main FAB was open already.
+        //This gives FAB (Settings) open/close behavior
+        fabSettings.setOnClickListener {
+            if (fabExpanded) {
+                closeSubMenusFab()
+            } else {
+                openSubMenusFab()
+            }
+        }
+        //Only main FAB is visible in the beginning
+        closeSubMenusFab()
 
     }
 
@@ -348,5 +380,23 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
         for (p in people) {
             println(p)
         }
+    }
+
+
+    //closes FAB submenus
+    private fun closeSubMenusFab() {
+        layoutFabAddItem.visibility = View.INVISIBLE
+        layoutFabConfirmItem.visibility = View.INVISIBLE
+        fabSettings.setImageResource(android.R.drawable.ic_input_add)
+        fabExpanded = false
+    }
+
+    //Opens FAB submenus
+    private fun openSubMenusFab() {
+        layoutFabAddItem.visibility = View.VISIBLE
+        layoutFabConfirmItem.visibility = View.VISIBLE
+        //Change settings icon to 'X' icon
+        fabSettings.setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
+        fabExpanded = true
     }
 }

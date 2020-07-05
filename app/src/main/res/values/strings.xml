@@ -19,4 +19,6 @@
     <string name="select_users">Select users to split item</string>
     <string name="camera">Camera</string>
     <string name="gallery">Gallery</string>
+    <string name="add_item">Add item</string>
+    <string name="confirm">Confirm</string>
 </resources>
