@@ -4,7 +4,7 @@ class Person(val name: String) {
     // Holds this person's assigned items
     // Key is the index of the item in the recycler list
     // Value is (price_string, num_people_splitting)
-    val itemPrices = HashMap<Int, Pair<String, Int>>()
+    var itemPrices = HashMap<Int, Pair<String, Int>>()
     var owedPrice = 0.0
 
     override fun toString(): String {

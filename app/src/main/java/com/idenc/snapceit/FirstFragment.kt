@@ -1,21 +1,21 @@
 package com.idenc.snapceit
 
+import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.graphics.Matrix
+import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
@@ -50,7 +50,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
 
     private lateinit var currentPhotoPath: Uri
     private lateinit var fragmentAdapter: ItemRecyclerAdapter
-    private var itemsList = ArrayList<Pair<String, String>>()
+    private var itemsList = ArrayList<Triple<String, String, ArrayList<String>>>()
     private var people = ArrayList<Person>()
     private var currentAssignPosition: Int = -1
 
@@ -62,6 +62,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
     private lateinit var layoutFabAddItem: LinearLayout
     private lateinit var layoutFabConfirmItem: LinearLayout
     private lateinit var layoutFabTax: LinearLayout
+    private lateinit var fabMenu: FrameLayout
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -71,6 +72,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
         return inflater.inflate(R.layout.fragment_first, container, false)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -95,7 +97,8 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
         initNavigation(navigation)
         // Make recycler view to hold parsed items
         fragmentAdapter = ItemRecyclerAdapter(itemsList)
-        view.findViewById<RecyclerView>(R.id.recycler).apply {
+        val recycler = view.findViewById<RecyclerView>(R.id.recycler)
+        recycler.apply {
             setHasFixedSize(false)
             layoutManager = LinearLayoutManager(requireContext())
             this.adapter = fragmentAdapter
@@ -121,12 +124,30 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
                 "people_selector"
             )
         }
-
+        fragmentAdapter.onDeleteClick = {
+            this.deleteItemHandler(it)
+        }
 
         fabSettings = view.findViewById(R.id.fab)
         layoutFabAddItem = view.findViewById(R.id.layoutFabAddItem)
         layoutFabConfirmItem = view.findViewById(R.id.layoutFabConfirm)
         layoutFabTax = view.findViewById(R.id.layoutFabTax)
+        fabMenu = view.findViewById(R.id.fabMenu)
+
+        recycler.setOnTouchListener { recycleView: View, motionEvent: MotionEvent ->
+            if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                val outRect = Rect()
+                fabMenu.getGlobalVisibleRect(outRect)
+                if (fabExpanded && !outRect.contains(
+                        motionEvent.rawX.toInt(),
+                        motionEvent.rawY.toInt()
+                    )
+                ) {
+                    closeSubMenusFab()
+                }
+            }
+            recycleView.performClick()
+        }
 
         layoutFabConfirmItem.setOnClickListener {
             people.forEach { person -> person.accumulatePrice() }
@@ -235,6 +256,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
                         processTextRecognitionResult(texts, bitmap.height)
                         progressSpinner.visibility = View.INVISIBLE
                         progressText.visibility = View.INVISIBLE
+                        fabMenu.visibility = View.VISIBLE
                     }
                     .addOnFailureListener { e -> // Task failed with an exception
                         e.printStackTrace()
@@ -289,11 +311,13 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
                     val (closestPrice, diff) = closest(line, blocks)
 
                     if (((diff.toDouble() / height) * 100) < 1) {
-                        var price = closestPrice.text.replace('O', '0')
+                        var price = closestPrice.text
+                            .replace('O', '0')
+                            .replace(',', '.')
                         PRICE_REGEX.find(price)?.let {
                             price = '$' + it.value
                         }
-                        itemsList.add(Pair(line.text, price))
+                        itemsList.add(Triple(line.text, price, ArrayList()))
                     }
                     println("${line.text} \t ${closestPrice.text}")
                     println((diff.toDouble() / height) * 100)
@@ -379,6 +403,20 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
         }
     }
 
+    private fun deleteItemHandler(position: Int) {
+        for (p in people) {
+            if (p.itemPrices.containsKey(position)) {
+                p.itemPrices.remove(position)
+            } else {
+                val newHashMap = HashMap<Int, Pair<String, Int>>()
+                for ((key, value) in p.itemPrices) {
+                    newHashMap[key - 1] = value
+                }
+                p.itemPrices = newHashMap
+            }
+        }
+    }
+
     override fun onDialogPositiveClick(selectedPeople: ArrayList<Int>) {
         for (i in 0 until people.size) {
             if (selectedPeople.contains(i)) {
@@ -386,10 +424,15 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
                     itemsList[currentAssignPosition].second,
                     selectedPeople.size
                 )
+                if (!itemsList[currentAssignPosition].third.contains(people[i].name)) {
+                    itemsList[currentAssignPosition].third.add(people[i].name)
+                }
             } else if (people[i].itemPrices.containsKey(currentAssignPosition)) {
                 people[i].itemPrices.remove(currentAssignPosition)
+                itemsList[currentAssignPosition].third.remove(people[i].name)
             }
         }
+        fragmentAdapter.notifyItemChanged(currentAssignPosition)
         for (p in people) {
             println(p)
         }

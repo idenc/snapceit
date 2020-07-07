@@ -4,14 +4,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.github.ivbaranov.mli.MaterialLetterIcon
 
-class ItemRecyclerAdapter(private val items: ArrayList<Pair<String, String>>) :
+class ItemRecyclerAdapter(private val items: ArrayList<Triple<String, String, ArrayList<String>>>) :
     RecyclerView.Adapter<ItemRecyclerAdapter.MyViewHolder>() {
     var onAssignClick: ((Int) -> Unit)? = null
+    var onDeleteClick: ((Int) -> Unit)? = null
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -21,14 +23,15 @@ class ItemRecyclerAdapter(private val items: ArrayList<Pair<String, String>>) :
     inner class MyViewHolder(listItemView: View) : RecyclerView.ViewHolder(listItemView) {
         // Your holder should contain and initialize a member variable
         // for any view that will be set as you render a row
-        val itemName: TextView = itemView.findViewById(R.id.item_name)
-        val itemPrice: TextView = itemView.findViewById(R.id.item_price)
+        val itemName: EditText = itemView.findViewById(R.id.item_name)
+        val itemPrice: EditText = itemView.findViewById(R.id.item_price)
         val deleteButton: ImageButton = itemView.findViewById(R.id.deleteButton)
         private val assignButton: Button = itemView.findViewById(R.id.assign_button)
+        val peopleString: TextView = itemView.findViewById(R.id.assigned_people)
 
         init {
             assignButton.setOnClickListener {
-                onAssignClick?.invoke(this.layoutPosition)
+                onAssignClick?.invoke(this.adapterPosition)
             }
         }
     }
@@ -50,11 +53,13 @@ class ItemRecyclerAdapter(private val items: ArrayList<Pair<String, String>>) :
         val item = items[position]
         val nameTextView = holder.itemName
         val priceTextView = holder.itemPrice
-        nameTextView.text = item.first
-        priceTextView.text = item.second
+        nameTextView.setText(item.first)
+        priceTextView.setText(item.second)
+        holder.peopleString.text = item.third.joinToString { it }
 
         holder.deleteButton.setOnClickListener {
-            removeItem(position)
+            removeItem(holder.adapterPosition)
+            onDeleteClick?.invoke(holder.adapterPosition)
         }
     }
 

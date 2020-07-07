@@ -43,12 +43,20 @@ class PersonSelectorDialogFragment : DialogFragment() {
                     if (isChecked) {
                         // If the user checked the item, add it to the selected items
                         selectedItems[position]?.add(which)
-                    } else if (selectedItems.contains(which)) {
+                    } else if (selectedItems[position]!!.contains(which)) {
                         // Else, if the item is already in the array, remove it
                         selectedItems[position]?.remove(Integer.valueOf(which))
                     }
                 }
                 .setPositiveButton(R.string.ok) { _, _ ->
+                    if (!selectedItems.containsKey(position)) {
+                        selectedItems[position] = ArrayList()
+                        for (i in checkedItems.indices) {
+                            if (checkedItems[i]) {
+                                selectedItems[position]?.add(i)
+                            }
+                        }
+                    }
                     selectedItems[position]?.let { items ->
                         for (i in 0 until numPeople) {
                             lastSelection[i] = items.contains(i)
