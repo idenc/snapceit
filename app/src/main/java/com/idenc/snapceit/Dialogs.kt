@@ -3,10 +3,12 @@ package com.idenc.snapceit
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
+import android.text.InputType
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import me.abhinay.input.CurrencyEditText
 
 class PersonSelectorDialogFragment : DialogFragment() {
     private val selectedItems = HashMap<Int, ArrayList<Int>>() // Where we track the selected items
@@ -16,7 +18,7 @@ class PersonSelectorDialogFragment : DialogFragment() {
     private var lastSelection = BooleanArray(numPeople)
 
     interface MyDialogListener {
-        fun onDialogPositiveClick(selectedPeople: ArrayList<Int>)
+        fun onPersonDialogPositiveClick(selectedPeople: ArrayList<Int>)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -61,7 +63,7 @@ class PersonSelectorDialogFragment : DialogFragment() {
                         for (i in 0 until numPeople) {
                             lastSelection[i] = items.contains(i)
                         }
-                        listener.onDialogPositiveClick(items)
+                        listener.onPersonDialogPositiveClick(items)
                     }
                 }
                 .setNegativeButton(R.string.cancel) { dialog, _ ->
@@ -111,5 +113,53 @@ class FinalSplitDialogFragment(private val people: ArrayList<Person>) : DialogFr
                 }
             builder.create()
         } ?: throw IllegalStateException("Activity cannot be null")
+    }
+}
+
+class AddTaxDialogFragment : DialogFragment() {
+    private lateinit var listener: MyDialogListener
+
+    interface MyDialogListener {
+        fun onTaxDialogPositiveClick(taxPrice: String)
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return activity?.let {
+            val builder = AlertDialog.Builder(it)
+            builder.setTitle("Add Tax")
+
+            val input = CurrencyEditText(it)
+            input.inputType = InputType.TYPE_CLASS_NUMBER
+            input.setCurrency("$")
+            input.setText(R.string.zero_dollars)
+            builder.setView(input)
+
+            builder.apply {
+                setPositiveButton(R.string.ok) { _, _ ->
+                    listener.onTaxDialogPositiveClick(input.text.toString())
+                }
+                setNegativeButton(R.string.cancel) { dialog, _ ->
+                    dialog.cancel()
+                }
+            }
+            builder.create()
+
+        } ?: throw IllegalStateException("Activity cannot be null")
+    }
+
+    // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        // Verify that the host activity implements the callback interface
+        try {
+            // Instantiate the NoticeDialogListener so we can send events to the host
+            listener = targetFragment as MyDialogListener
+        } catch (e: ClassCastException) {
+            // The activity doesn't implement the interface, throw exception
+            throw ClassCastException(
+                (targetFragment.toString() +
+                        " must implement NoticeDialogListener")
+            )
+        }
     }
 }

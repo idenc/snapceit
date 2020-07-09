@@ -25,7 +25,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
@@ -43,7 +42,8 @@ import kotlin.math.abs
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
  */
-class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener {
+class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
+    AddTaxDialogFragment.MyDialogListener {
     private val REQUEST_IMAGE_CAPTURE = 1
     private val REQUEST_GALLERY_IMAGE = 2
     private val PRICE_REGEX = Regex("([\\dO]+\\.\\d{1,2})")
@@ -56,7 +56,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
 
     //boolean flag to know if main FAB is in open or closed state.
     private var fabExpanded = false
-    private lateinit var fabSettings: FloatingActionButton
+    private lateinit var fabSettings: ImageButton
 
     //Linear layout holding the Save submenu
     private lateinit var layoutFabAddItem: LinearLayout
@@ -111,6 +111,8 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
         }
 
         val finalSplitDialog = FinalSplitDialogFragment(people)
+        val taxDialog = AddTaxDialogFragment()
+        taxDialog.setTargetFragment(this, 0)
 
         // Create dialog to assign items to people
         val personSelector = PersonSelectorDialogFragment()
@@ -128,7 +130,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
             this.deleteItemHandler(it)
         }
 
-        fabSettings = view.findViewById(R.id.fab)
+        fabSettings = view.findViewById(R.id.actionButton)
         layoutFabAddItem = view.findViewById(R.id.layoutFabAddItem)
         layoutFabConfirmItem = view.findViewById(R.id.layoutFabConfirm)
         layoutFabTax = view.findViewById(R.id.layoutFabTax)
@@ -152,6 +154,10 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
         layoutFabConfirmItem.setOnClickListener {
             people.forEach { person -> person.accumulatePrice() }
             finalSplitDialog.show(parentFragmentManager, "person_split")
+        }
+
+        layoutFabTax.setOnClickListener {
+            taxDialog.show(parentFragmentManager, "add_tax")
         }
 
         //When main Fab (Settings) is clicked, it expands if not expanded already.
@@ -257,6 +263,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
                         progressSpinner.visibility = View.INVISIBLE
                         progressText.visibility = View.INVISIBLE
                         fabMenu.visibility = View.VISIBLE
+                        fabSettings.visibility = View.VISIBLE
                     }
                     .addOnFailureListener { e -> // Task failed with an exception
                         e.printStackTrace()
@@ -414,10 +421,11 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
                 }
                 p.itemPrices = newHashMap
             }
+            println(p)
         }
     }
 
-    override fun onDialogPositiveClick(selectedPeople: ArrayList<Int>) {
+    override fun onPersonDialogPositiveClick(selectedPeople: ArrayList<Int>) {
         for (i in 0 until people.size) {
             if (selectedPeople.contains(i)) {
                 people[i].itemPrices[currentAssignPosition] = Pair(
@@ -438,12 +446,15 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
         }
     }
 
+    override fun onTaxDialogPositiveClick(taxPrice: String) {
+        println(taxPrice)
+    }
+
     //closes FAB submenus
     private fun closeSubMenusFab() {
         layoutFabAddItem.visibility = View.INVISIBLE
         layoutFabConfirmItem.visibility = View.INVISIBLE
         layoutFabTax.visibility = View.INVISIBLE
-        fabSettings.setImageResource(android.R.drawable.ic_input_add)
         fabExpanded = false
     }
 
@@ -453,7 +464,6 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener 
         layoutFabConfirmItem.visibility = View.VISIBLE
         layoutFabTax.visibility = View.VISIBLE
         //Change settings icon to 'X' icon
-        fabSettings.setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
         fabExpanded = true
     }
 }

@@ -9,6 +9,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.github.ivbaranov.mli.MaterialLetterIcon
+import me.abhinay.input.CurrencyEditText
 
 class ItemRecyclerAdapter(private val items: ArrayList<Triple<String, String, ArrayList<String>>>) :
     RecyclerView.Adapter<ItemRecyclerAdapter.MyViewHolder>() {
@@ -24,7 +25,7 @@ class ItemRecyclerAdapter(private val items: ArrayList<Triple<String, String, Ar
         // Your holder should contain and initialize a member variable
         // for any view that will be set as you render a row
         val itemName: EditText = itemView.findViewById(R.id.item_name)
-        val itemPrice: EditText = itemView.findViewById(R.id.item_price)
+        val itemPrice: CurrencyEditText = itemView.findViewById(R.id.item_price)
         val deleteButton: ImageButton = itemView.findViewById(R.id.deleteButton)
         private val assignButton: Button = itemView.findViewById(R.id.assign_button)
         val peopleString: TextView = itemView.findViewById(R.id.assigned_people)
@@ -53,6 +54,7 @@ class ItemRecyclerAdapter(private val items: ArrayList<Triple<String, String, Ar
         val item = items[position]
         val nameTextView = holder.itemName
         val priceTextView = holder.itemPrice
+        priceTextView.setCurrency("$")
         nameTextView.setText(item.first)
         priceTextView.setText(item.second)
         holder.peopleString.text = item.third.joinToString { it }

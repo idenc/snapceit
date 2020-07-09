@@ -15,7 +15,6 @@
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginBottom="70dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -54,7 +53,7 @@
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginBottom="120dp"
+        android:layout_marginBottom="50dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -93,7 +92,7 @@
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginBottom="170dp"
+        android:layout_marginBottom="100dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -123,24 +122,5 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_done_all_24px"
             app:fabSize="mini" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layoutFabSettings"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:tint="#FFFFFF"
-            app:fabSize="normal"
-            app:srcCompat="@android:drawable/ic_input_add" />
-
     </LinearLayout>
 </FrameLayout>

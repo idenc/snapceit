@@ -8,25 +8,32 @@
 
     <EditText
         android:id="@+id/item_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="-8dp"
         android:background="@null"
+        android:paddingStart="8dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="0dp"
         android:textSize="16sp"
         android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/assign_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
+    <me.abhinay.input.CurrencyEditText
         android:id="@+id/item_price"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="-8dp"
         android:background="@null"
+        android:inputType="number"
+        android:paddingStart="8dp"
+        android:paddingEnd="0dp"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/assign_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/item_name"
         app:layout_constraintVertical_bias="0.0" />

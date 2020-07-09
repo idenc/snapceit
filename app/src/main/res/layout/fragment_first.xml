@@ -55,6 +55,20 @@
         app:layout_constraintRight_toRightOf="parent"
         app:menu="@menu/bottom_nav_menu" />
 
+    <ImageButton
+        android:id="@+id/actionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="56dp"
+        android:background="?android:attr/windowBackground"
+        android:outlineProvider="none"
+        android:paddingStart="0dp"
+        android:paddingEnd="26dp"
+        android:src="@drawable/ic_more_vert_24px"
+        android:translationZ="20dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler"
         android:layout_width="0dp"
