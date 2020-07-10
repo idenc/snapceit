@@ -12,25 +12,19 @@ class Person(val name: String) {
     }
 
     fun accumulatePrice() {
-        var totalCents = 0.0
+        var total = 0.0
         for ((_, itemInfo) in itemPrices) {
             val price = itemInfo.first
             val numPeople = itemInfo.second
             val priceString = price.removePrefix("$")
-            val idx = priceString.indexOf('.')
-            val dollars = priceString.substring(0, idx).toInt()
-            var cents = priceString.substring(idx + 1, priceString.length).toFloat()
-            cents += dollars * 100
-            cents /= numPeople
-            totalCents += cents
+            val priceDouble = priceString.toDouble()
+            total += priceDouble
         }
-        owedPrice = totalCents
+        owedPrice = total
     }
 
     fun getPriceString(): String {
-        val finalDollars = kotlin.math.floor(owedPrice / 100).toInt()
-        val finalCents = kotlin.math.round(owedPrice % 100).toInt()
-        return "\$$finalDollars.$finalCents"
+        return String.format("\$%.2f", owedPrice)
     }
 }
 

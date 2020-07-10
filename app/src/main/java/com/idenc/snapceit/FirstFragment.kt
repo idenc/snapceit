@@ -43,7 +43,7 @@ import kotlin.math.abs
  * A simple [Fragment] subclass as the default destination in the navigation.
  */
 class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
-    AddTaxDialogFragment.MyDialogListener {
+    AddTaxDialogFragment.MyDialogListener, AddItemDialogFragment.MyDialogListener {
     private val REQUEST_IMAGE_CAPTURE = 1
     private val REQUEST_GALLERY_IMAGE = 2
     private val PRICE_REGEX = Regex("([\\dO]+\\.\\d{1,2})")
@@ -53,6 +53,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
     private var itemsList = ArrayList<Triple<String, String, ArrayList<String>>>()
     private var people = ArrayList<Person>()
     private var currentAssignPosition: Int = -1
+    private var taxPrice = 0.0
 
     //boolean flag to know if main FAB is in open or closed state.
     private var fabExpanded = false
@@ -113,6 +114,8 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
         val finalSplitDialog = FinalSplitDialogFragment(people)
         val taxDialog = AddTaxDialogFragment()
         taxDialog.setTargetFragment(this, 0)
+        val addItemDialog = AddItemDialogFragment()
+        addItemDialog.setTargetFragment(this, 0)
 
         // Create dialog to assign items to people
         val personSelector = PersonSelectorDialogFragment()
@@ -152,12 +155,30 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
         }
 
         layoutFabConfirmItem.setOnClickListener {
-            people.forEach { person -> person.accumulatePrice() }
+            var totalPrice = 0.0
+            people.forEach { person ->
+                person.accumulatePrice()
+                totalPrice += person.owedPrice
+            }
+            // Find the tax percentage
+            var taxPercent = 0.0
+            if (totalPrice > 0) {
+                taxPercent = taxPrice / totalPrice
+            }
+            // Add tax percentage to each person's items
+            // to split tax based on what people paid for
+            for (person in people) {
+                person.owedPrice += person.owedPrice * taxPercent
+            }
             finalSplitDialog.show(parentFragmentManager, "person_split")
         }
 
         layoutFabTax.setOnClickListener {
             taxDialog.show(parentFragmentManager, "add_tax")
+        }
+
+        layoutFabAddItem.setOnClickListener {
+            addItemDialog.show(parentFragmentManager, "add_item")
         }
 
         //When main Fab (Settings) is clicked, it expands if not expanded already.
@@ -446,8 +467,13 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
         }
     }
 
-    override fun onTaxDialogPositiveClick(taxPrice: String) {
-        println(taxPrice)
+    override fun onTaxDialogPositiveClick(enteredTax: Double) {
+        taxPrice = enteredTax
+    }
+
+    override fun onAddItemDialogPositiveClick(itemName: String, itemPrice: String) {
+        itemsList.add(Triple(itemName, itemPrice, ArrayList()))
+        fragmentAdapter.notifyItemInserted(itemsList.size - 1)
     }
 
     //closes FAB submenus

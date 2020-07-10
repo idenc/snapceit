@@ -4,6 +4,7 @@ import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import android.text.InputType
+import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -120,7 +121,7 @@ class AddTaxDialogFragment : DialogFragment() {
     private lateinit var listener: MyDialogListener
 
     interface MyDialogListener {
-        fun onTaxDialogPositiveClick(taxPrice: String)
+        fun onTaxDialogPositiveClick(enteredTax: Double)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -136,13 +137,84 @@ class AddTaxDialogFragment : DialogFragment() {
 
             builder.apply {
                 setPositiveButton(R.string.ok) { _, _ ->
-                    listener.onTaxDialogPositiveClick(input.text.toString())
+                    listener.onTaxDialogPositiveClick(input.cleanDoubleValue)
                 }
                 setNegativeButton(R.string.cancel) { dialog, _ ->
                     dialog.cancel()
                 }
             }
             builder.create()
+
+        } ?: throw IllegalStateException("Activity cannot be null")
+    }
+
+    // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        // Verify that the host activity implements the callback interface
+        try {
+            // Instantiate the NoticeDialogListener so we can send events to the host
+            listener = targetFragment as MyDialogListener
+        } catch (e: ClassCastException) {
+            // The activity doesn't implement the interface, throw exception
+            throw ClassCastException(
+                (targetFragment.toString() +
+                        " must implement NoticeDialogListener")
+            )
+        }
+    }
+}
+
+class AddItemDialogFragment : DialogFragment() {
+    private lateinit var listener: MyDialogListener
+
+    interface MyDialogListener {
+        fun onAddItemDialogPositiveClick(itemName: String, itemPrice: String)
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return activity?.let {
+            val builder = AlertDialog.Builder(it)
+            builder.setTitle("Add Receipt Item")
+            val inflater = requireActivity().layoutInflater
+            val view = inflater.inflate(R.layout.add_item_layout, null, false)
+            val itemNameInput = view.findViewById<EditText>(R.id.addItemNameInput)
+            val itemPriceInput = view.findViewById<CurrencyEditText>(R.id.addItemPriceInput)
+            itemPriceInput.setCurrency("$")
+            builder.setView(view)
+
+            builder.apply {
+                setPositiveButton(R.string.ok) { _, _ -> }
+                setNegativeButton(R.string.cancel) { dialog, _ ->
+                    dialog.cancel()
+                }
+            }
+            val dialog = builder.create()
+            dialog.setOnShowListener {
+                val positiveButton = dialog.getButton(Dialog.BUTTON_POSITIVE)
+                positiveButton.setOnClickListener {
+                    val nameText = itemNameInput.text.toString().trim()
+                    val itemPriceText = itemPriceInput.text.toString().trim()
+                    var inputsValidated = true
+                    if (nameText.isEmpty()) {
+                        itemNameInput.error = "Item Name cannot be empty"
+                        inputsValidated = false
+                    }
+                    if (itemPriceText.isEmpty()) {
+                        itemPriceInput.error = "Item Price cannot be empty"
+                        inputsValidated = false
+                    }
+                    if (inputsValidated) {
+                        listener.onAddItemDialogPositiveClick(
+                            nameText,
+                            itemPriceText
+                        )
+                        dismiss()
+                    }
+                }
+            }
+
+            return dialog
 
         } ?: throw IllegalStateException("Activity cannot be null")
     }

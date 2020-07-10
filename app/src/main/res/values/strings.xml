@@ -24,4 +24,6 @@
     <string name="add_tax">Add Tax</string>
     <string name="actions">Actions</string>
     <string name="zero_dollars">$0.00</string>
+    <string name="item_name">Item Name</string>
+    <string name="item_price">Item Price</string>
 </resources>
