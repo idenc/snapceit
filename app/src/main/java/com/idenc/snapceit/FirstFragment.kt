@@ -165,10 +165,12 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
             if (totalPrice > 0) {
                 taxPercent = taxPrice / totalPrice
             }
-            // Add tax percentage to each person's items
-            // to split tax based on what people paid for
-            for (person in people) {
-                person.owedPrice += person.owedPrice * taxPercent
+            if (taxPercent > 0) {
+                // Add tax percentage to each person's items
+                // to split tax based on what people paid for
+                for (person in people) {
+                    person.owedPrice += person.owedPrice * taxPercent
+                }
             }
             finalSplitDialog.show(parentFragmentManager, "person_split")
         }
@@ -438,7 +440,11 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
             } else {
                 val newHashMap = HashMap<Int, Pair<String, Int>>()
                 for ((key, value) in p.itemPrices) {
-                    newHashMap[key - 1] = value
+                    if (key >= position) {
+                        newHashMap[key - 1] = value
+                    } else {
+                        newHashMap[key] = value
+                    }
                 }
                 p.itemPrices = newHashMap
             }

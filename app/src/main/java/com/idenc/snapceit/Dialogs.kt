@@ -32,6 +32,12 @@ class PersonSelectorDialogFragment : DialogFragment() {
                 }
             } else {
                 checkedItems = lastSelection
+                selectedItems[position] = ArrayList()
+                for (i in checkedItems.indices) {
+                    if (checkedItems[i]) {
+                        selectedItems[position]?.add(i)
+                    }
+                }
             }
 
             // Set the dialog title
@@ -40,9 +46,6 @@ class PersonSelectorDialogFragment : DialogFragment() {
                 // and the listener through which to receive callbacks when items are selected
                 .setMultiChoiceItems(R.array.userNames, checkedItems)
                 { _, which, isChecked ->
-                    if (!selectedItems.containsKey(position)) {
-                        selectedItems[position] = ArrayList()
-                    }
                     if (isChecked) {
                         // If the user checked the item, add it to the selected items
                         selectedItems[position]?.add(which)

@@ -18,7 +18,7 @@ class Person(val name: String) {
             val numPeople = itemInfo.second
             val priceString = price.removePrefix("$")
             val priceDouble = priceString.toDouble()
-            total += priceDouble
+            total += (priceDouble / numPeople)
         }
         owedPrice = total
     }

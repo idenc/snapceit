@@ -60,8 +60,8 @@ class ItemRecyclerAdapter(private val items: ArrayList<Triple<String, String, Ar
         holder.peopleString.text = item.third.joinToString { it }
 
         holder.deleteButton.setOnClickListener {
-            removeItem(holder.adapterPosition)
             onDeleteClick?.invoke(holder.adapterPosition)
+            removeItem(holder.adapterPosition)
         }
     }
 
