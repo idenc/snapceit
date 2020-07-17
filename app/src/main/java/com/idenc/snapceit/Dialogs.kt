@@ -238,3 +238,49 @@ class AddItemDialogFragment : DialogFragment() {
         }
     }
 }
+
+class AddPersonDialogFragment : DialogFragment() {
+    private lateinit var listener: MyDialogListener
+
+    interface MyDialogListener {
+        fun onPersonDialogPositiveClick(enteredName: String)
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return activity?.let {
+            val builder = AlertDialog.Builder(it)
+            builder.setTitle("Add Person")
+
+            val input = EditText(it)
+            input.isSelected = true
+            builder.setView(input)
+
+            builder.apply {
+                setPositiveButton(R.string.ok) { _, _ ->
+                    listener.onPersonDialogPositiveClick(input.text.toString())
+                }
+                setNegativeButton(R.string.cancel) { dialog, _ ->
+                    dialog.cancel()
+                }
+            }
+            builder.create()
+
+        } ?: throw IllegalStateException("Activity cannot be null")
+    }
+
+    // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        // Verify that the host activity implements the callback interface
+        try {
+            // Instantiate the NoticeDialogListener so we can send events to the host
+            listener = targetFragment as MyDialogListener
+        } catch (e: ClassCastException) {
+            // The activity doesn't implement the interface, throw exception
+            throw ClassCastException(
+                (targetFragment.toString() +
+                        " must implement NoticeDialogListener")
+            )
+        }
+    }
+}
