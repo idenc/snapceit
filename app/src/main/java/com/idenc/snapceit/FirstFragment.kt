@@ -2,6 +2,7 @@ package com.idenc.snapceit
 
 import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -15,6 +16,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
@@ -76,7 +78,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        requireActivity().getPreferences(Context.MODE_PRIVATE).edit().remove("select_people").apply()
         view.findViewById<Button>(R.id.button_first).setOnClickListener {
             findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
         }
@@ -122,6 +124,13 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
         personSelector.setTargetFragment(this, 0)
         // Add listener to assign button
         fragmentAdapter.onAssignClick = { position ->
+            val imm: InputMethodManager =
+                view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(view.windowToken, 0)
+            val current = requireActivity().currentFocus
+            current?.apply {
+                this.clearFocus()
+            }
             currentAssignPosition = position
             personSelector.position = position
             personSelector.show(
@@ -131,6 +140,18 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
         }
         fragmentAdapter.onDeleteClick = {
             this.deleteItemHandler(it)
+        }
+        fragmentAdapter.onEditPrice = { position, newPrice ->
+            itemsList[position] = itemsList[position].copy(second = newPrice)
+            for (p in people) {
+                if (p.itemPrices.containsKey(position)) {
+                    p.itemPrices[position] = p.itemPrices[position]!!.copy(first = newPrice)
+                }
+                println(p)
+            }
+        }
+        fragmentAdapter.onEditName = { position, newName ->
+            itemsList[position] = itemsList[position].copy(first = newName)
         }
 
         fabSettings = view.findViewById(R.id.actionButton)

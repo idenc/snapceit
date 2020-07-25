@@ -2,7 +2,6 @@ package com.idenc.snapceit
 
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
-import androidx.preference.MultiSelectListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 
@@ -11,12 +10,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
 
-        val peopleSelect = findPreference<MultiSelectListPreference>("select_people")
-        
-        peopleSelect?.setOnPreferenceChangeListener { preference: Preference, any: Any ->
-            println("")
-            true
-        }
+        val peopleSelect = findPreference<CustomListPreference>("select_people")
     }
 
     override fun onDisplayPreferenceDialog(preference: Preference) {

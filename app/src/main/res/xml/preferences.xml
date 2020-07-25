@@ -2,9 +2,9 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <com.idenc.snapceit.CustomListPreference
+        android:key="select_people"
         android:entries="@array/userNames"
         android:entryValues="@array/userNames"
-        android:key="select_people"
         android:summary="Select people who are sharing the bill"
         android:title="Select People" />
 </PreferenceScreen>

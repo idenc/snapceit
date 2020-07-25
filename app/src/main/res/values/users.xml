@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="userNames"></string-array>
+    <string-array name="userNames">
+        <item>Iden</item>
+        <item>Jada</item>
+    </string-array>
 </resources>

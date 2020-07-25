@@ -11,10 +11,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.ivbaranov.mli.MaterialLetterIcon
 import me.abhinay.input.CurrencyEditText
 
+
 class ItemRecyclerAdapter(private val items: ArrayList<Triple<String, String, ArrayList<String>>>) :
     RecyclerView.Adapter<ItemRecyclerAdapter.MyViewHolder>() {
     var onAssignClick: ((Int) -> Unit)? = null
     var onDeleteClick: ((Int) -> Unit)? = null
+    var onEditPrice: ((Int, String) -> Unit)? = null
+    var onEditName: ((Int, String) -> Unit)? = null
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -33,6 +36,24 @@ class ItemRecyclerAdapter(private val items: ArrayList<Triple<String, String, Ar
         init {
             assignButton.setOnClickListener {
                 onAssignClick?.invoke(this.adapterPosition)
+            }
+
+            itemPrice.setOnFocusChangeListener { v, hasFocus ->
+                if (!hasFocus) {
+                    onEditPrice?.invoke(
+                        this.adapterPosition,
+                        (v as CurrencyEditText).text.toString()
+                    )
+                }
+            }
+            itemName.setOnFocusChangeListener { v, hasFocus ->
+                if (!hasFocus) {
+                    // the user is done typing.
+                    onEditName?.invoke(
+                        this.adapterPosition,
+                        (v as EditText).text.toString()
+                    )
+                }
             }
         }
     }
