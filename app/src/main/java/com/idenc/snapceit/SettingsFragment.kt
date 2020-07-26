@@ -9,8 +9,6 @@ import androidx.preference.PreferenceFragmentCompat
 class SettingsFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
-
-        val peopleSelect = findPreference<CustomListPreference>("select_people")
     }
 
     override fun onDisplayPreferenceDialog(preference: Preference) {
@@ -18,7 +16,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         // Try if the preference is one of our custom Preferences
         var dialogFragment: DialogFragment? = null
         if (preference is CustomListPreference) {
-            // Create a new instance of TimePreferenceDialogFragment with the key of the related
+            // Create a new instance of CustomListPreferenceDialogFragment with the key of the related
             // Preference
             dialogFragment =
                 CustomListPreference.CustomListPreferenceDialogFragment.newInstance(preference.getKey())

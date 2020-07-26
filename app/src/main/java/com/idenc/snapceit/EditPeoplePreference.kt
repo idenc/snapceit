@@ -17,7 +17,6 @@ package com.idenc.snapceit
 
 import android.app.Dialog
 import android.content.Context
-import android.content.DialogInterface
 import android.os.Bundle
 import android.util.AttributeSet
 import android.view.View
@@ -33,23 +32,23 @@ import androidx.preference.PreferenceDialogFragmentCompat
 
 class CustomListPreference(context: Context?, attrs: AttributeSet?) :
     MultiSelectListPreference(context, attrs) {
-
+    private var mSharedPrefs = context!!.getSharedPreferences("select_people", Context.MODE_PRIVATE)
     private var myEntries: Set<String> = setOf()
-
-    private fun onPrepareDialogBuilder(
-        builder: Builder?,
-        listener: DialogInterface.OnClickListener?
-    ) {
-    }
 
     override fun onSetInitialValue(defaultValue: Any?) {
         myEntries = getPersistedStringSet(setOf<String>())
+        val editor = mSharedPrefs.edit()
+        editor.putStringSet("people_names", myEntries)
+        editor.apply()
         entries = myEntries.toTypedArray()
         entryValues = myEntries.toTypedArray()
     }
 
     fun addEntry(entry: String) {
         myEntries = myEntries.plus(entry)
+        val editor = mSharedPrefs.edit()
+        editor.putStringSet("people_names", myEntries)
+        editor.apply()
         persistStringSet(myEntries)
         entries = myEntries.toTypedArray()
         entryValues = myEntries.toTypedArray()
@@ -57,17 +56,12 @@ class CustomListPreference(context: Context?, attrs: AttributeSet?) :
 
     fun removeEntry(entry: String) {
         myEntries = myEntries.minus(entry)
+        val editor = mSharedPrefs.edit()
+        editor.putStringSet("people_names", myEntries)
+        editor.apply()
         persistStringSet(myEntries)
         entries = myEntries.toTypedArray()
         entryValues = myEntries.toTypedArray()
-    }
-
-    private fun onDialogCreated(dialog: Dialog?) {}
-
-    private fun onDialogStateRestored(
-        dialog: Dialog?,
-        savedInstanceState: Bundle?
-    ) {
     }
 
     class CustomListPreferenceDialogFragment : MultiSelectListPreferenceDialogFragmentCompat(),
@@ -81,25 +75,9 @@ class CustomListPreference(context: Context?, attrs: AttributeSet?) :
             addPersonDialog.setTargetFragment(this, 0)
         }
 
-//        override fun onPrepareDialogBuilder(builder: Builder) {
-//            super.onPrepareDialogBuilder(builder)
-//            customizablePreference.onPrepareDialogBuilder(builder, onItemClickListener)
-////            builder.setPositiveButton(R.string.ok
-////            ) { dialog, which -> onItemChosen() }
-//        }
-
         override fun onPersonDialogPositiveClick(enteredName: String) {
             customizablePreference.addEntry(enteredName)
             myAdapter.addItem(enteredName)
-        }
-
-
-        fun newInstance(key: String?): CustomListPreferenceDialogFragment? {
-            val fragment = CustomListPreferenceDialogFragment()
-            val b = Bundle(1)
-            b.putString(PreferenceDialogFragmentCompat.ARG_KEY, key)
-            fragment.arguments = b
-            return fragment
         }
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -125,19 +103,12 @@ class CustomListPreference(context: Context?, attrs: AttributeSet?) :
                     }
                 }
 
-//                val contentView = onCreateDialogView(context)
-//                if (contentView != null) {
-//                    onBindDialogView(contentView)
-//                    builder.setView(contentView)
-//                }
-//                onPrepareDialogBuilder(builder)
-
                 val dialog = builder.create()
 
                 val listView: ListView = dialog.listView
                 listView.adapter = myAdapter
                 listView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
-                listView.setOnItemClickListener { adapterView: AdapterView<*>, v: View, i: Int, l: Long ->
+                listView.setOnItemClickListener { _: AdapterView<*>, v: View, i: Int, _: Long ->
                     val chkBox = v.findViewById<CheckedTextView>(R.id.prefPersonName)
                     chkBox.toggle()
                     myAdapter.toggleItemChecked(i)
@@ -154,44 +125,7 @@ class CustomListPreference(context: Context?, attrs: AttributeSet?) :
             } ?: throw IllegalStateException("Activity cannot be null")
         }
 
-//        override fun onSaveInstanceState(outState: Bundle) {
-//            super.onSaveInstanceState(outState)
-//            outState.putStringArrayList(
-//                KEY_CLICKED_ENTRIES,
-//                mClickedItems as ArrayList<String>
-//            )
-//        }
-//
-//        override fun onActivityCreated(savedInstanceState: Bundle?) {
-//            super.onActivityCreated(savedInstanceState)
-//            customizablePreference.onDialogStateRestored(dialog, savedInstanceState)
-//        }
-//
-//        private val onItemClickListener: DialogInterface.OnClickListener
-//            get() = DialogInterface.OnClickListener { dialog, which ->
-//                val item = customizablePreference.values.elementAt(which)
-//                mClickedItems = if (mClickedItems.contains(item)) {
-//                    mClickedItems.minus(item)
-//                } else {
-//                    mClickedItems.plus(item)
-//                }
-//            }
-
-//        override fun onDialogClosed(positiveResult: Boolean) {
-//            customizablePreference.onDialogClosed(positiveResult)
-//            val preference: ListPreference = customizablePreference
-//            val value: String? = value
-//            if (positiveResult && value != null) {
-//                if (preference.callChangeListener(value)) {
-//                    preference.value = value
-//                }
-//            }
-//        }
-
         companion object {
-            private const val KEY_CLICKED_ENTRIES: String =
-                "settings.CustomListPrefDialog.KEY_CLICKED_ENTRIES"
-
             fun newInstance(key: String?): CustomListPreferenceDialogFragment {
                 val fragment =
                     CustomListPreferenceDialogFragment()
@@ -201,5 +135,6 @@ class CustomListPreference(context: Context?, attrs: AttributeSet?) :
                 return fragment
             }
         }
+
     }
 }

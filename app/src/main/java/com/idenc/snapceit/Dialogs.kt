@@ -7,6 +7,7 @@ import android.text.InputType
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import me.abhinay.input.CurrencyEditText
@@ -15,16 +16,34 @@ class PersonSelectorDialogFragment : DialogFragment() {
     private val selectedItems = HashMap<Int, ArrayList<Int>>() // Where we track the selected items
     private lateinit var listener: MyDialogListener
     var position = 0
-    private val numPeople = 2
+    private var numPeople: Int = 0
     private var lastSelection = BooleanArray(numPeople)
 
     interface MyDialogListener {
         fun onPersonDialogPositiveClick(selectedPeople: ArrayList<Int>)
     }
 
+    private fun getPeople(activity: FragmentActivity): Array<String> {
+        val peopleNames = activity.getSharedPreferences("select_people",
+            Context.MODE_PRIVATE).getStringSet("people_names", setOf())!!.toMutableList()
+        val checkedPeoplePref = activity.getSharedPreferences("ListFile", Context.MODE_PRIVATE)
+        val numItems = checkedPeoplePref.getInt("checked_size", 0)
+        for (i in 0 until numItems) {
+            if (!checkedPeoplePref.getBoolean("checked_$i", true)) {
+                peopleNames.removeAt(i)
+            }
+        }
+        if (numPeople == 0) {
+            lastSelection = BooleanArray(peopleNames.size)
+        }
+        numPeople = peopleNames.size
+        return peopleNames.toTypedArray()
+    }
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             val builder = AlertDialog.Builder(it)
+            val peopleNames = getPeople(it)
             var checkedItems = BooleanArray(numPeople)
             if (selectedItems.containsKey(position)) {
                 for (i in 0 until numPeople) {
@@ -44,7 +63,7 @@ class PersonSelectorDialogFragment : DialogFragment() {
             builder.setTitle(R.string.select_users)
                 // Specify the list array, the items to be selected by default (null for none),
                 // and the listener through which to receive callbacks when items are selected
-                .setMultiChoiceItems(R.array.userNames, checkedItems)
+                .setMultiChoiceItems(peopleNames, checkedItems)
                 { _, which, isChecked ->
                     if (isChecked) {
                         // If the user checked the item, add it to the selected items
