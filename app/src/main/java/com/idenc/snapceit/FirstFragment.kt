@@ -152,7 +152,6 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
             }
         }
         fragmentAdapter.onEditName = { position, newName ->
-            println("Position: $position")
             if (position < itemsList.size && position >= 0) {
                 itemsList[position] = itemsList[position].copy(first = newName)
             }
@@ -374,9 +373,9 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
                         }
                         itemsList.add(Triple(line.text, price, ArrayList()))
                     }
-                    println("${line.text} \t ${closestPrice.text}")
-                    println((diff.toDouble() / height) * 100)
-                    println()
+                    // println("${line.text} \t ${closestPrice.text}")
+                    // println((diff.toDouble() / height) * 100)
+                    // println()
                 }
             }
         }
@@ -473,7 +472,6 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
                 }
                 p.itemPrices = newHashMap
             }
-            println(p)
         }
     }
 
@@ -493,9 +491,9 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
             }
         }
         fragmentAdapter.notifyItemChanged(currentAssignPosition)
-        for (p in people) {
-            println(p)
-        }
+//        for (p in people) {
+//            println(p)
+//        }
     }
 
     override fun onTaxDialogPositiveClick(enteredTax: Double) {
