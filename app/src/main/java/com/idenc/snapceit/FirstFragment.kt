@@ -142,16 +142,20 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
             this.deleteItemHandler(it)
         }
         fragmentAdapter.onEditPrice = { position, newPrice ->
-            itemsList[position] = itemsList[position].copy(second = newPrice)
-            for (p in people) {
-                if (p.itemPrices.containsKey(position)) {
-                    p.itemPrices[position] = p.itemPrices[position]!!.copy(first = newPrice)
+            if (position < itemsList.size && position >= 0) {
+                itemsList[position] = itemsList[position].copy(second = newPrice)
+                for (p in people) {
+                    if (p.itemPrices.containsKey(position)) {
+                        p.itemPrices[position] = p.itemPrices[position]!!.copy(first = newPrice)
+                    }
                 }
-                println(p)
             }
         }
         fragmentAdapter.onEditName = { position, newName ->
-            itemsList[position] = itemsList[position].copy(first = newName)
+            println("Position: $position")
+            if (position < itemsList.size && position >= 0) {
+                itemsList[position] = itemsList[position].copy(first = newName)
+            }
         }
 
         fabSettings = view.findViewById(R.id.actionButton)
