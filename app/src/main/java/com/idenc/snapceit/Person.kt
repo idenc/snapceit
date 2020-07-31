@@ -27,11 +27,3 @@ class Person(val name: String) {
         return String.format("\$%.2f", owedPrice)
     }
 }
-
-//fun main() {
-//    val test = Person("Iden")
-//    val test2 = Person("Jada")
-//    test.itemPrices[0] = Pair("$10.35", 2)
-//    test2.itemPrices[0] = Pair("$10.35", 2)
-//    println(test.accumulatePrice())
-//}

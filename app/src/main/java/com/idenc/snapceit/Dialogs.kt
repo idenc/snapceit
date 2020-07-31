@@ -24,8 +24,10 @@ class PersonSelectorDialogFragment : DialogFragment() {
     }
 
     private fun getPeople(activity: FragmentActivity): Array<String> {
-        val peopleNames = activity.getSharedPreferences("select_people",
-            Context.MODE_PRIVATE).getStringSet("people_names", setOf())!!.toMutableList()
+        val peopleNames = activity.getSharedPreferences(
+            "select_people",
+            Context.MODE_PRIVATE
+        ).getStringSet("people_names", setOf())!!.toMutableList()
         val checkedPeoplePref = activity.getSharedPreferences("ListFile", Context.MODE_PRIVATE)
         val numItems = checkedPeoplePref.getInt("checked_size", 0)
         for (i in 0 until numItems) {
@@ -119,7 +121,7 @@ class FinalSplitDialogFragment(private val people: ArrayList<Person>) : DialogFr
         return activity?.let {
             val builder = AlertDialog.Builder(it)
             // Get the layout inflater
-            val inflater = requireActivity().layoutInflater;
+            val inflater = requireActivity().layoutInflater
             val view = inflater.inflate(R.layout.person_split_recyclerview, null, false)
             val recyclerView = view.findViewById<RecyclerView>(R.id.personRecycler)
             val adapter = FinalSplitRecyclerAdapter(people)
