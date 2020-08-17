@@ -108,7 +108,17 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
         }
 
         // Instantiate our current people
-        val peopleStrings = resources.getStringArray(R.array.userNames)
+        val peopleStrings = activity?.getSharedPreferences(
+            "select_people",
+            Context.MODE_PRIVATE
+        )?.getStringSet("people_names", setOf())!!.toMutableList()
+        val checkedPeoplePref = activity?.getSharedPreferences("ListFile", Context.MODE_PRIVATE)
+        val numItems = checkedPeoplePref!!.getInt("checked_size", 0)
+        for (i in 0 until numItems) {
+            if (!checkedPeoplePref.getBoolean("checked_$i", true)) {
+                peopleStrings.removeAt(i)
+            }
+        }
         for (name in peopleStrings) {
             people.add(Person(name))
         }
@@ -491,9 +501,6 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
             }
         }
         fragmentAdapter.notifyItemChanged(currentAssignPosition)
-//        for (p in people) {
-//            println(p)
-//        }
     }
 
     override fun onTaxDialogPositiveClick(enteredTax: Double) {

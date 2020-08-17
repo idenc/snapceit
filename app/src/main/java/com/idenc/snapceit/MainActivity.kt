@@ -15,8 +15,6 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(findViewById(R.id.toolbar))
 
         // Clear cache if greater than 50 MB
-        val cacheSize = getCacheSize()
-        // println("Cache size is $cacheSize")
         if (getCacheSize() > 5e+7) {
             applicationContext.cacheDir.deleteRecursively()
         }
