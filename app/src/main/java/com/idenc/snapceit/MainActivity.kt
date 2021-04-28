@@ -13,23 +13,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
-
-        // Clear cache if greater than 50 MB
-        if (getCacheSize() > 5e+7) {
-            applicationContext.cacheDir.deleteRecursively()
-        }
-    }
-
-    private fun getCacheSize(): Long {
-        var size: Long = 0
-        cacheDir?.also {
-            it.listFiles()?.also { files ->
-                for (f in files) {
-                    size += f.length()
-                }
-            }
-        }
-        return size
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

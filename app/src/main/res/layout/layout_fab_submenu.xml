@@ -1,6 +1,5 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/fabFrame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginTop="?attr/actionBarSize"
@@ -26,7 +25,6 @@
             app:cardUseCompatPadding="true">
 
             <TextView
-                android:id="@+id/cvtAdd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="@dimen/cardview_horizontal_padding"
@@ -39,7 +37,6 @@
         </androidx.cardview.widget.CardView>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabAdd"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_input_24px"
@@ -65,7 +62,6 @@
             app:cardUseCompatPadding="true">
 
             <TextView
-                android:id="@+id/cvtTax"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="@dimen/cardview_horizontal_padding"
@@ -78,7 +74,6 @@
         </androidx.cardview.widget.CardView>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabTax"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_attach_money_24px"
@@ -104,7 +99,6 @@
             app:cardUseCompatPadding="true">
 
             <TextView
-                android:id="@+id/cvtConfirm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="@dimen/cardview_horizontal_padding"
@@ -117,7 +111,6 @@
         </androidx.cardview.widget.CardView>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabConfirm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_done_all_24px"

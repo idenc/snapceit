@@ -78,7 +78,8 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        requireActivity().getPreferences(Context.MODE_PRIVATE).edit().remove("select_people").apply()
+        requireActivity().getPreferences(Context.MODE_PRIVATE).edit().remove("select_people")
+            .apply()
         view.findViewById<Button>(R.id.button_first).setOnClickListener {
             findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
         }
@@ -397,7 +398,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
             Intent.ACTION_PICK,
             MediaStore.Images.Media.INTERNAL_CONTENT_URI
         ).also { galleryIntent ->
-            galleryIntent.resolveActivity(requireActivity().packageManager)?.also {
+            requireActivity().packageManager?.also {
                 startActivityForResult(galleryIntent, REQUEST_GALLERY_IMAGE)
             }
         }
@@ -405,7 +406,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
 
     private fun dispatchTakePictureIntent() {
         Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
-            takePictureIntent.resolveActivity(requireActivity().packageManager)?.also {
+            requireActivity().packageManager?.also {
                 // Create the File where the photo should go
                 val photoFile: File? = try {
                     createImageFile()
