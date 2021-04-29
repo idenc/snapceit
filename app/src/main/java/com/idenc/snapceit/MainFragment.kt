@@ -20,6 +20,7 @@ import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
@@ -40,7 +41,7 @@ import kotlin.math.abs
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
  */
-class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
+class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
     AddTaxDialogFragment.MyDialogListener, AddItemDialogFragment.MyDialogListener {
     private val REQUEST_IMAGE_CAPTURE = 1
     private val REQUEST_GALLERY_IMAGE = 2
@@ -48,7 +49,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
 
     private lateinit var currentPhotoPath: Uri
     private lateinit var fragmentAdapter: ItemRecyclerAdapter
-    private var itemsList = ArrayList<Triple<String, String, ArrayList<String>>>()
+    private var itemsList = ArrayList<Item>()
     private var people = ArrayList<Person>()
     private var currentAssignPosition: Int = -1
     private var taxPrice = 0.0
@@ -68,7 +69,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_first, container, false)
+        return inflater.inflate(R.layout.fragment_main, container, false)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -92,6 +93,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
             setHasFixedSize(false)
             layoutManager = LinearLayoutManager(requireContext())
             this.adapter = fragmentAdapter
+            addItemDecoration(DividerItemDecoration(this.context, DividerItemDecoration.VERTICAL))
         }
 
         initPeople()
@@ -172,22 +174,14 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
                 "people_selector"
             )
         }
-        fragmentAdapter.onDeleteClick = {
-            this.deleteItemHandler(it)
-        }
         fragmentAdapter.onEditPrice = { position, newPrice ->
             if (position < itemsList.size && position >= 0) {
-                itemsList[position] = itemsList[position].copy(second = newPrice)
-                for (p in people) {
-                    if (p.itemPrices.containsKey(position)) {
-                        p.itemPrices[position] = p.itemPrices[position]!!.copy(first = newPrice)
-                    }
-                }
+                itemsList[position] = itemsList[position].copy(itemPrice = newPrice)
             }
         }
         fragmentAdapter.onEditName = { position, newName ->
             if (position < itemsList.size && position >= 0) {
-                itemsList[position] = itemsList[position].copy(first = newName)
+                itemsList[position] = itemsList[position].copy(itemName = newName)
             }
         }
     }
@@ -207,11 +201,29 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
         return recycleView.performClick()
     }
 
+    private fun hideKeyboard() {
+        fabMenu.requestFocus()
+
+        val imm =
+            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+        imm!!.hideSoftInputFromWindow(fabSettings.windowToken, 0)
+    }
+
     private fun confirmListener(finalSplitDialog: FinalSplitDialogFragment) {
+        hideKeyboard()
         var totalPrice = 0.0
         people.forEach { person ->
-            person.accumulatePrice()
-            totalPrice += person.owedPrice
+            person.owedPrice = 0.0
+        }
+
+        for (item in itemsList) {
+            if (item.peopleSplitting.size > 0) {
+                val price = item.itemPrice.removePrefix("$").toDouble()
+                totalPrice += price
+                for (person in item.peopleSplitting) {
+                    person.owedPrice += price / item.peopleSplitting.size
+                }
+            }
         }
         // Find the tax percentage
         var taxPercent = 0.0
@@ -365,14 +377,14 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
                 if (!line.text.contains("$")) {
                     val (closestPrice, diff) = closest(line, blocks)
 
-                    if (((diff.toDouble() / height) * 100) < 1) {
+                    if (((diff.toDouble() / height) * 100) < 2) {
                         var price = closestPrice.text
                             .replace('O', '0')
                             .replace(',', '.')
                         PRICE_REGEX.find(price)?.let {
                             price = '$' + it.value
                         }
-                        itemsList.add(Triple(line.text, price, ArrayList()))
+                        itemsList.add(Item(line.text, price, ArrayList()))
                     }
                     // println("${line.text} \t ${closestPrice.text}")
                     // println((diff.toDouble() / height) * 100)
@@ -458,41 +470,15 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
         }
     }
 
-    private fun deleteItemHandler(position: Int) {
-        for (p in people) {
-            if (p.itemPrices.containsKey(position)) {
-                p.removeItem(position)
-            }
-            val newHashMap = HashMap<Int, Pair<String, Int>>()
-            for ((key, value) in p.itemPrices) {
-                if (key >= position) {
-                    newHashMap[key - 1] = value
-                } else {
-                    newHashMap[key] = value
-                }
-            }
-            p.itemPrices = newHashMap
-        }
-    }
-
     override fun onPersonDialogPositiveClick(selectedPeople: ArrayList<Int>) {
         for (i in 0 until people.size) {
             if (selectedPeople.contains(i)) {
-                // Person has been selected for this item
-                // Add item to person
-                people[i].addItem(
-                    currentAssignPosition,
-                    itemsList[currentAssignPosition].second,
-                    selectedPeople.size
-                )
-                if (!itemsList[currentAssignPosition].third.contains(people[i].name)) {
+                if (!itemsList[currentAssignPosition].peopleSplitting.contains(people[i])) {
                     // Add person name to item if it doesn't already exist
-                    itemsList[currentAssignPosition].third.add(people[i].name)
+                    itemsList[currentAssignPosition].peopleSplitting.add(people[i])
                 }
-            } else if (people[i].itemPrices.containsKey(currentAssignPosition)) {
-                // Remove person from having item
-                people[i].removeItem(currentAssignPosition)
-                itemsList[currentAssignPosition].third.remove(people[i].name)
+            } else {
+                itemsList[currentAssignPosition].peopleSplitting.remove(people[i])
             }
         }
         fragmentAdapter.notifyItemChanged(currentAssignPosition)
@@ -503,7 +489,7 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
     }
 
     override fun onAddItemDialogPositiveClick(itemName: String, itemPrice: String) {
-        itemsList.add(Triple(itemName, itemPrice, ArrayList()))
+        itemsList.add(Item(itemName, itemPrice, ArrayList()))
         fragmentAdapter.notifyItemInserted(itemsList.size - 1)
     }
 

@@ -5,6 +5,8 @@
     android:layout_marginTop="?attr/actionBarSize"
     android:clipChildren="false"
     android:clipToPadding="false"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:orientation="vertical">
 
     <LinearLayout

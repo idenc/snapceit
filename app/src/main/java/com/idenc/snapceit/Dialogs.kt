@@ -118,12 +118,13 @@ class PersonSelectorDialogFragment : DialogFragment() {
 
 class FinalSplitDialogFragment(private val people: ArrayList<Person>) : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return activity?.let {
-            val builder = AlertDialog.Builder(it)
+        return activity?.let { fragmentActivity ->
+            val builder = AlertDialog.Builder(fragmentActivity)
             // Get the layout inflater
             val inflater = requireActivity().layoutInflater
             val view = inflater.inflate(R.layout.person_split_recyclerview, null, false)
             val recyclerView = view.findViewById<RecyclerView>(R.id.personRecycler)
+            people.add(Person("Total", people.sumByDouble { it.owedPrice }))
             val adapter = FinalSplitRecyclerAdapter(people)
             recyclerView.setHasFixedSize(false)
             recyclerView.layoutManager = LinearLayoutManager(requireContext())
