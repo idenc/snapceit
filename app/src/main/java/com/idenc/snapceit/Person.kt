@@ -1,5 +1,7 @@
 package com.idenc.snapceit
 
+import android.util.Log
+
 class Person(val name: String) {
     // Holds this person's assigned items
     // Key is the index of the item in the recycler list
@@ -9,6 +11,16 @@ class Person(val name: String) {
 
     override fun toString(): String {
         return "Person(name='$name', itemPrices=$itemPrices)"
+    }
+
+    fun addItem(itemIndex: Int, itemPrice: String, numSplit: Int) {
+        itemPrices[itemIndex] = Pair(itemPrice, numSplit)
+        Log.d("Person", this.toString())
+    }
+
+    fun removeItem(itemIndex: Int) {
+        itemPrices.remove(itemIndex)
+        Log.d("Person", this.toString())
     }
 
     fun accumulatePrice() {
