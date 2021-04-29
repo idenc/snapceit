@@ -5,7 +5,7 @@ import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.ImageDecoder
+import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.net.Uri
@@ -303,8 +303,8 @@ class FirstFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
                         photoPath
                     )
                 } else {
-                    val source = ImageDecoder.createSource(it.contentResolver, photoPath)
-                    ImageDecoder.decodeBitmap(source)
+                    val input = it.contentResolver.openInputStream(photoPath)
+                    BitmapFactory.decodeStream(input).copy(Bitmap.Config.ARGB_8888, true)
                 }
                 // Ensure photo rotation is correct
                 it.contentResolver.openInputStream(photoPath)?.let { stream ->
