@@ -124,7 +124,14 @@ class FinalSplitDialogFragment(private val people: ArrayList<Person>) : DialogFr
             val inflater = requireActivity().layoutInflater
             val view = inflater.inflate(R.layout.person_split_recyclerview, null, false)
             val recyclerView = view.findViewById<RecyclerView>(R.id.personRecycler)
-            people.add(Person("Total", people.sumByDouble { it.owedPrice }))
+            if (!people.any { p -> p.name == "Total" }) {
+                people.add(Person("Total", people.sumByDouble { it.owedPrice }))
+            } else {
+                val total = people.find { p -> p.name == "Total" }
+                if (total != null) {
+                    total.owedPrice = people.sumByDouble { it.owedPrice }
+                }
+            }
             val adapter = FinalSplitRecyclerAdapter(people)
             recyclerView.setHasFixedSize(false)
             recyclerView.layoutManager = LinearLayoutManager(requireContext())
