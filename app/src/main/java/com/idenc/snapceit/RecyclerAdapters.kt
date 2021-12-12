@@ -12,7 +12,7 @@ import com.github.ivbaranov.mli.MaterialLetterIcon
 import me.abhinay.input.CurrencyEditText
 
 
-class ItemRecyclerAdapter(private val items: ArrayList<Triple<String, String, ArrayList<String>>>) :
+class ItemRecyclerAdapter(private val items: ArrayList<Item>) :
     RecyclerView.Adapter<ItemRecyclerAdapter.MyViewHolder>() {
     var onAssignClick: ((Int) -> Unit)? = null
     var onDeleteClick: ((Int) -> Unit)? = null
@@ -76,9 +76,9 @@ class ItemRecyclerAdapter(private val items: ArrayList<Triple<String, String, Ar
         val nameTextView = holder.itemName
         val priceTextView = holder.itemPrice
         priceTextView.setCurrency("$")
-        nameTextView.setText(item.first)
-        priceTextView.setText(item.second)
-        holder.peopleString.text = item.third.joinToString { it }
+        nameTextView.setText(item.itemName)
+        priceTextView.setText(item.itemPrice)
+        holder.peopleString.text = item.peopleSplitting.joinToString { it.name }
 
         holder.deleteButton.setOnClickListener {
             onDeleteClick?.invoke(holder.adapterPosition)

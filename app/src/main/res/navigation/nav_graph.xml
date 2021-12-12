@@ -6,9 +6,9 @@
 
     <fragment
         android:id="@+id/FirstFragment"
-        android:name="com.idenc.snapceit.FirstFragment"
+        android:name="com.idenc.snapceit.MainFragment"
         android:label="@string/first_fragment_label"
-        tools:layout="@layout/fragment_first">
+        tools:layout="@layout/fragment_main">
 
         <action
             android:id="@+id/action_FirstFragment_to_SecondFragment"
