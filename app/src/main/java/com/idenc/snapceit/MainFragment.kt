@@ -30,6 +30,7 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -315,7 +316,7 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
 
                 // Use MLKit to perform text recognition
                 val image: InputImage = InputImage.fromFilePath(it, photoPath)
-                val recognizer: TextRecognizer = TextRecognition.getClient()
+                val recognizer: TextRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
                 recognizer.process(image)
                     .addOnSuccessListener { texts ->
                         // On text recognition parse prices out and then hide loading spinner
