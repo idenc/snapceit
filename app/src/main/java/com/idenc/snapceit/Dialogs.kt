@@ -151,6 +151,7 @@ class FinalSplitDialogFragment(private val people: ArrayList<Person>) : DialogFr
 
 class AddTaxDialogFragment : DialogFragment() {
     private lateinit var listener: MyDialogListener
+    private var currentTax = 0.0
 
     interface MyDialogListener {
         fun onTaxDialogPositiveClick(enteredTax: Double)
@@ -164,12 +165,13 @@ class AddTaxDialogFragment : DialogFragment() {
             val input = CurrencyEditText(it)
             input.inputType = InputType.TYPE_CLASS_NUMBER
             input.setCurrency("$")
-            input.setText(R.string.zero_dollars)
+            input.setText((currentTax * 10).toString())
             builder.setView(input)
 
             builder.apply {
                 setPositiveButton(R.string.ok) { _, _ ->
-                    listener.onTaxDialogPositiveClick(input.cleanDoubleValue)
+                    currentTax = input.cleanDoubleValue
+                    listener.onTaxDialogPositiveClick(currentTax)
                 }
                 setNegativeButton(R.string.cancel) { dialog, _ ->
                     dialog.cancel()
