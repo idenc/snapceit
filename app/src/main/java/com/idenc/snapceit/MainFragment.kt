@@ -35,7 +35,6 @@ import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.math.abs
 
 
@@ -50,6 +49,7 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
 
     private lateinit var currentPhotoPath: Uri
     private lateinit var fragmentAdapter: ItemRecyclerAdapter
+    private lateinit var personSelectorDialog: PersonSelectorDialogFragment
     private var itemsList = ArrayList<Item>()
     private var people = ArrayList<Person>()
     private var currentAssignPosition: Int = -1
@@ -106,9 +106,9 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
         addItemDialog.setTargetFragment(this, 0)
 
         // Create dialog to assign items to people
-        val personSelector = PersonSelectorDialogFragment()
-        personSelector.setTargetFragment(this, 0)
-        setAdapterListeners(view, personSelector)
+        personSelectorDialog = PersonSelectorDialogFragment()
+        personSelectorDialog.setTargetFragment(this, 0)
+        setAdapterListeners(view, personSelectorDialog)
 
         recycler.setOnTouchListener { recycleView: View, motionEvent: MotionEvent ->
             hideFab(recycleView, motionEvent)
@@ -319,6 +319,7 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
                 val recognizer: TextRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
                 recognizer.process(image)
                     .addOnSuccessListener { texts ->
+                        personSelectorDialog.clearSelectedItems()
                         // On text recognition parse prices out and then hide loading spinner
                         processTextRecognitionResult(texts, options.outHeight)
                         progressSpinner.visibility = View.INVISIBLE

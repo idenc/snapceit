@@ -112,6 +112,10 @@ class PersonSelectorDialogFragment : DialogFragment() {
             )
         }
     }
+
+    fun clearSelectedItems() {
+        this.selectedItems.clear()
+    }
 }
 
 class FinalSplitDialogFragment(private val people: ArrayList<Person>) : DialogFragment() {
