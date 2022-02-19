@@ -45,11 +45,12 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
     AddTaxDialogFragment.MyDialogListener, AddItemDialogFragment.MyDialogListener {
     private val REQUEST_IMAGE_CAPTURE = 1
     private val REQUEST_GALLERY_IMAGE = 2
-    private val PRICE_REGEX = Regex("\\\$?\\d{1,3}(?:[.,]\\d{3})*(?:[.,]\\d{2})")
+    private val PRICE_REGEX = Regex("\\d{1,3}(?:[.,]\\d{3})*[.,]\\d{2}")
 
     private lateinit var currentPhotoPath: Uri
     private lateinit var fragmentAdapter: ItemRecyclerAdapter
     private lateinit var personSelectorDialog: PersonSelectorDialogFragment
+    private lateinit var addTaxDialog: AddTaxDialogFragment
     private var itemsList = ArrayList<Item>()
     private var people = ArrayList<Person>()
     private var currentAssignPosition: Int = -1
@@ -100,8 +101,8 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
         initPeople()
 
         val finalSplitDialog = FinalSplitDialogFragment(people)
-        val taxDialog = AddTaxDialogFragment()
-        taxDialog.setTargetFragment(this, 0)
+        addTaxDialog = AddTaxDialogFragment()
+        addTaxDialog.setTargetFragment(this, 0)
         val addItemDialog = AddItemDialogFragment()
         addItemDialog.setTargetFragment(this, 0)
 
@@ -119,7 +120,8 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
         }
 
         layoutFabTax.setOnClickListener {
-            taxDialog.show(parentFragmentManager, "add_tax")
+            addTaxDialog.setCurrentTax(taxPrice)
+            addTaxDialog.show(parentFragmentManager, "add_tax")
         }
 
         layoutFabAddItem.setOnClickListener {
@@ -373,7 +375,10 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
             return
         }
 
+        val numItems = itemsList.size
         itemsList.clear()
+        fragmentAdapter.notifyItemRangeRemoved(0, numItems)
+        taxPrice = 0.0
 
         for (block in blocks) {
             val lines = block.lines
@@ -391,6 +396,7 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
                             price = '$' + it.value
                         }
                         itemsList.add(Item(line.text, price, ArrayList()))
+                        fragmentAdapter.notifyItemInserted(itemsList.size - 1)
                     }
                     // println("${line.text} \t ${closestPrice.text}")
                     // println((diff.toDouble() / height) * 100)
@@ -398,7 +404,6 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
                 }
             }
         }
-        fragmentAdapter.notifyDataSetChanged()
     }
 
     private fun dispatchGalleryIntent() {
