@@ -45,7 +45,7 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
     AddTaxDialogFragment.MyDialogListener, AddItemDialogFragment.MyDialogListener {
     private val REQUEST_IMAGE_CAPTURE = 1
     private val REQUEST_GALLERY_IMAGE = 2
-    private val PRICE_REGEX = Regex("([\\dO]+\\.\\d{1,2})")
+    private val PRICE_REGEX = Regex("\\\$?\\d{1,3}(?:[.,]\\d{3})*(?:[.,]\\d{2})")
 
     private lateinit var currentPhotoPath: Uri
     private lateinit var fragmentAdapter: ItemRecyclerAdapter
@@ -219,7 +219,12 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
 
         for (item in itemsList) {
             if (item.peopleSplitting.size > 0) {
-                val price = item.itemPrice.removePrefix("$").toDouble()
+                var price: Double
+                try {
+                    price = item.itemPrice.removePrefix("$").toDouble()
+                } catch (e: NumberFormatException) {
+                    continue
+                }
                 totalPrice += price
                 for (person in item.peopleSplitting) {
                     person.owedPrice += price / item.peopleSplitting.size
@@ -316,7 +321,8 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
 
                 // Use MLKit to perform text recognition
                 val image: InputImage = InputImage.fromFilePath(it, photoPath)
-                val recognizer: TextRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+                val recognizer: TextRecognizer =
+                    TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
                 recognizer.process(image)
                     .addOnSuccessListener { texts ->
                         personSelectorDialog.clearSelectedItems()
@@ -348,9 +354,7 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
         for (block in blocks) {
             val lines = block.lines
             for (line in lines) {
-                if ((line.text.contains("$") || PRICE_REGEX.containsMatchIn(line.text))
-                    && line.text != of.text
-                ) {
+                if (PRICE_REGEX.containsMatchIn(line.text) && line.text != of.text) {
                     diff = abs(line.boundingBox!!.bottom - of.boundingBox!!.bottom)
                     if (diff < min) {
                         min = diff
