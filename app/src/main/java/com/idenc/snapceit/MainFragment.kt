@@ -30,11 +30,11 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.math.abs
 
 
@@ -45,10 +45,12 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
     AddTaxDialogFragment.MyDialogListener, AddItemDialogFragment.MyDialogListener {
     private val REQUEST_IMAGE_CAPTURE = 1
     private val REQUEST_GALLERY_IMAGE = 2
-    private val PRICE_REGEX = Regex("([\\dO]+\\.\\d{1,2})")
+    private val PRICE_REGEX = Regex("\\d{1,3}(?:[.,]\\d{3})*[.,]\\d{2}")
 
     private lateinit var currentPhotoPath: Uri
     private lateinit var fragmentAdapter: ItemRecyclerAdapter
+    private lateinit var personSelectorDialog: PersonSelectorDialogFragment
+    private lateinit var addTaxDialog: AddTaxDialogFragment
     private var itemsList = ArrayList<Item>()
     private var people = ArrayList<Person>()
     private var currentAssignPosition: Int = -1
@@ -99,15 +101,15 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
         initPeople()
 
         val finalSplitDialog = FinalSplitDialogFragment(people)
-        val taxDialog = AddTaxDialogFragment()
-        taxDialog.setTargetFragment(this, 0)
+        addTaxDialog = AddTaxDialogFragment()
+        addTaxDialog.setTargetFragment(this, 0)
         val addItemDialog = AddItemDialogFragment()
         addItemDialog.setTargetFragment(this, 0)
 
         // Create dialog to assign items to people
-        val personSelector = PersonSelectorDialogFragment()
-        personSelector.setTargetFragment(this, 0)
-        setAdapterListeners(view, personSelector)
+        personSelectorDialog = PersonSelectorDialogFragment()
+        personSelectorDialog.setTargetFragment(this, 0)
+        setAdapterListeners(view, personSelectorDialog)
 
         recycler.setOnTouchListener { recycleView: View, motionEvent: MotionEvent ->
             hideFab(recycleView, motionEvent)
@@ -118,7 +120,8 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
         }
 
         layoutFabTax.setOnClickListener {
-            taxDialog.show(parentFragmentManager, "add_tax")
+            addTaxDialog.setCurrentTax(taxPrice)
+            addTaxDialog.show(parentFragmentManager, "add_tax")
         }
 
         layoutFabAddItem.setOnClickListener {
@@ -218,7 +221,12 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
 
         for (item in itemsList) {
             if (item.peopleSplitting.size > 0) {
-                val price = item.itemPrice.removePrefix("$").toDouble()
+                var price: Double
+                try {
+                    price = item.itemPrice.removePrefix("$").toDouble()
+                } catch (e: NumberFormatException) {
+                    continue
+                }
                 totalPrice += price
                 for (person in item.peopleSplitting) {
                     person.owedPrice += price / item.peopleSplitting.size
@@ -315,9 +323,11 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
 
                 // Use MLKit to perform text recognition
                 val image: InputImage = InputImage.fromFilePath(it, photoPath)
-                val recognizer: TextRecognizer = TextRecognition.getClient()
+                val recognizer: TextRecognizer =
+                    TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
                 recognizer.process(image)
                     .addOnSuccessListener { texts ->
+                        personSelectorDialog.clearSelectedItems()
                         // On text recognition parse prices out and then hide loading spinner
                         processTextRecognitionResult(texts, options.outHeight)
                         progressSpinner.visibility = View.INVISIBLE
@@ -346,9 +356,7 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
         for (block in blocks) {
             val lines = block.lines
             for (line in lines) {
-                if ((line.text.contains("$") || PRICE_REGEX.containsMatchIn(line.text))
-                    && line.text != of.text
-                ) {
+                if (PRICE_REGEX.containsMatchIn(line.text) && line.text != of.text) {
                     diff = abs(line.boundingBox!!.bottom - of.boundingBox!!.bottom)
                     if (diff < min) {
                         min = diff
@@ -367,7 +375,10 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
             return
         }
 
+        val numItems = itemsList.size
         itemsList.clear()
+        fragmentAdapter.notifyItemRangeRemoved(0, numItems)
+        taxPrice = 0.0
 
         for (block in blocks) {
             val lines = block.lines
@@ -385,6 +396,7 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
                             price = '$' + it.value
                         }
                         itemsList.add(Item(line.text, price, ArrayList()))
+                        fragmentAdapter.notifyItemInserted(itemsList.size - 1)
                     }
                     // println("${line.text} \t ${closestPrice.text}")
                     // println((diff.toDouble() / height) * 100)
@@ -392,7 +404,6 @@ class MainFragment : Fragment(), PersonSelectorDialogFragment.MyDialogListener,
                 }
             }
         }
-        fragmentAdapter.notifyDataSetChanged()
     }
 
     private fun dispatchGalleryIntent() {

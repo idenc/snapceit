@@ -47,16 +47,16 @@ class PersonSelectorDialogFragment : DialogFragment() {
             val builder = AlertDialog.Builder(it)
             val peopleNames = getPeople(it)
             var checkedItems = BooleanArray(numPeople)
+            val tempItems = ArrayList<Int>()
             if (selectedItems.containsKey(position)) {
                 for (i in 0 until numPeople) {
                     checkedItems[i] = selectedItems[position]!!.contains(i)
                 }
             } else {
                 checkedItems = lastSelection
-                selectedItems[position] = ArrayList()
                 for (i in checkedItems.indices) {
                     if (checkedItems[i]) {
-                        selectedItems[position]?.add(i)
+                        tempItems.add(i)
                     }
                 }
             }
@@ -69,19 +69,17 @@ class PersonSelectorDialogFragment : DialogFragment() {
                 { _, which, isChecked ->
                     if (isChecked) {
                         // If the user checked the item, add it to the selected items
-                        selectedItems[position]?.add(which)
-                    } else if (selectedItems[position]!!.contains(which)) {
+                        tempItems.add(which)
+                    } else if (tempItems.contains(which)) {
                         // Else, if the item is already in the array, remove it
-                        selectedItems[position]?.remove(Integer.valueOf(which))
+                        tempItems.remove(Integer.valueOf(which))
                     }
                 }
                 .setPositiveButton(R.string.ok) { _, _ ->
-                    if (!selectedItems.containsKey(position)) {
-                        selectedItems[position] = ArrayList()
-                        for (i in checkedItems.indices) {
-                            if (checkedItems[i]) {
-                                selectedItems[position]?.add(i)
-                            }
+                    selectedItems[position] = ArrayList()
+                    for (i in checkedItems.indices) {
+                        if (checkedItems[i]) {
+                            selectedItems[position]?.add(i)
                         }
                     }
                     selectedItems[position]?.let { items ->
@@ -114,6 +112,10 @@ class PersonSelectorDialogFragment : DialogFragment() {
             )
         }
     }
+
+    fun clearSelectedItems() {
+        this.selectedItems.clear()
+    }
 }
 
 class FinalSplitDialogFragment(private val people: ArrayList<Person>) : DialogFragment() {
@@ -125,18 +127,17 @@ class FinalSplitDialogFragment(private val people: ArrayList<Person>) : DialogFr
             val view = inflater.inflate(R.layout.person_split_recyclerview, null, false)
             val recyclerView = view.findViewById<RecyclerView>(R.id.personRecycler)
             if (!people.any { p -> p.name == "Total" }) {
-                people.add(Person("Total", people.sumByDouble { it.owedPrice }))
+                people.add(Person("Total", people.sumOf { it.owedPrice }))
             } else {
                 val total = people.find { p -> p.name == "Total" }
                 if (total != null) {
-                    total.owedPrice = people.sumByDouble { it.owedPrice }
+                    total.owedPrice = people.sumOf { it.owedPrice }
                 }
             }
             val adapter = FinalSplitRecyclerAdapter(people)
             recyclerView.setHasFixedSize(false)
             recyclerView.layoutManager = LinearLayoutManager(requireContext())
             recyclerView.adapter = adapter
-            adapter.notifyDataSetChanged()
 
             // Inflate and set the layout for the dialog
             // Pass null as the parent view because its going in the dialog layout
@@ -151,9 +152,14 @@ class FinalSplitDialogFragment(private val people: ArrayList<Person>) : DialogFr
 
 class AddTaxDialogFragment : DialogFragment() {
     private lateinit var listener: MyDialogListener
+    private var currentTax = 0.0
 
     interface MyDialogListener {
         fun onTaxDialogPositiveClick(enteredTax: Double)
+    }
+
+    fun setCurrentTax(newTax: Double) {
+        currentTax = newTax
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -164,12 +170,13 @@ class AddTaxDialogFragment : DialogFragment() {
             val input = CurrencyEditText(it)
             input.inputType = InputType.TYPE_CLASS_NUMBER
             input.setCurrency("$")
-            input.setText(R.string.zero_dollars)
+            input.setText((currentTax * 10).toString())
             builder.setView(input)
 
             builder.apply {
                 setPositiveButton(R.string.ok) { _, _ ->
-                    listener.onTaxDialogPositiveClick(input.cleanDoubleValue)
+                    currentTax = input.cleanDoubleValue
+                    listener.onTaxDialogPositiveClick(currentTax)
                 }
                 setNegativeButton(R.string.cancel) { dialog, _ ->
                     dialog.cancel()

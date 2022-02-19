@@ -31,7 +31,7 @@ import androidx.preference.PreferenceDialogFragmentCompat
 
 
 class CustomListPreference(context: Context?, attrs: AttributeSet?) :
-    MultiSelectListPreference(context, attrs) {
+    MultiSelectListPreference(context!!, attrs) {
     private var mSharedPrefs = context!!.getSharedPreferences("select_people", Context.MODE_PRIVATE)
     private var myEntries: Set<String> = setOf()
 
